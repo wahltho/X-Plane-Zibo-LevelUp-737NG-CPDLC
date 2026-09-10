@@ -76,8 +76,8 @@ Restart X-Plane afterwards. `verify` and `uninstall` are available as well;
 uninstall restores only the owned blocks and keeps unrelated changes.
 
 The package is Toolkit-compatible (`compatibilityPackage`, manifest schema 3)
-and can be installed through the X-Plane 737NG Maintenance Toolkit when it is
-listed in its catalog.
+and is listed in the X-Plane 737NG Maintenance Toolkit catalog as the optional
+module `CPDLC FANS PAGES`.
 
 ## Upgrading from 1.0.0
 

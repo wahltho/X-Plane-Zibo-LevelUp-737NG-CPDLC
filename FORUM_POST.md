@@ -63,9 +63,9 @@ followed by EXEC.
   `python3 z_Install.py install ...`. The installer validates every owned
   block, keeps a backup and offers `verify` and `uninstall`; unrelated local
   changes in the file are preserved.
-- X-Plane 737NG Maintenance Toolkit: the package is Toolkit-compatible and is
-  planned as an optional catalog module `CPDLC FANS PAGES`; until it is
-  listed, use the GitHub release.
+- X-Plane 737NG Maintenance Toolkit: listed as the optional catalog module
+  `CPDLC FANS PAGES`. Enable it in the Toolkit; it installs, verifies and
+  removes the patch through the same structural checks.
 
 Supported: Zibo 4.05.35 and LevelUp V2.S1.50 for X-Plane 12. LevelUp V2.S1
 has no CPDLC code and is not supported. Other revisions install only when
