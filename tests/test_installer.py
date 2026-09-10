@@ -37,7 +37,10 @@ CPDLC_MARKERS = (
     "-- BEGIN CPDLC PATCH MODULE",
     "-- END CPDLC PATCH MODULE",
     "\tcpdlc_patch_overlay()\t-- CPDLC PATCH",
-    "dlnk_in_use = dlnk_in_use + cpdlc_patch_in_use()\t-- CPDLC PATCH",
+    "-- BEGIN CPDLC PATCH HOOK DLNK",
+    "if cpdlc_patch_page ~= 0 and dlnk_in_use == 0 then dlnk_in_use = 1 end",
+    "-- BEGIN CPDLC PATCH HOOK 1L",
+    "-- END CPDLC PATCH HOOK 6R",
 )
 
 
@@ -194,7 +197,7 @@ class InstallerIntegrationTests(unittest.TestCase):
                     )
                 )
                 self.assertEqual("wahltho.zibo-40535.cpdlc", state["packageId"])
-                self.assertEqual("1.0.0", state["packageVersion"])
+                self.assertEqual("1.1.0", state["packageVersion"])
                 self.assertEqual(identifier, state["baselineId"])
                 self.assertEqual(1, len(state["files"]))
 
@@ -211,6 +214,8 @@ class InstallerIntegrationTests(unittest.TestCase):
                 self.assertEqual(1, fms.count('line2_l = "<ATC            AOC STD>"'))
                 self.assertEqual(1, fms.count("if atc_msg_status[in_msg] ~= 3 then"))
                 self.assertEqual(12, fms.count('if cpdlc_patch_lsk("'))
+                self.assertEqual(12, fms.count("-- BEGIN CPDLC PATCH HOOK ") - 1)
+                self.assertEqual(0, fms.count("-- CPDLC PATCH\n") + fms.count("-- CPDLC PATCH\r\n") - 1)
                 self.assertEqual(2, fms.count("atc_proc_dir = word_txt[4]\t-- CPDLC PATCH: the fix follows DIRECT TO"))
                 self.assertEqual(1, fms.count("function cpdlc_patch_load_direct()"))
 
@@ -238,6 +243,37 @@ class InstallerIntegrationTests(unittest.TestCase):
                 self.assertTrue((aircraft_root / TARGETS[0]).read_bytes().endswith(unrelated))
                 self.assertFalse((aircraft_root / ".zibo-cpdlc-patch").exists())
                 self.run_installer(aircraft_root, "check")
+
+    def test_v100_installed_file_upgrades_without_duplicate_hooks(self) -> None:
+        fixture = json.loads(
+            (REPOSITORY_ROOT / "tests/fixtures/B738.a_fms.lua.v1.0.0.json").read_text(encoding="utf-8")
+        )
+        for identifier, upstream, name, _, _ in self.baselines:
+            with self.subTest(baseline=identifier), tempfile.TemporaryDirectory(
+                prefix="cpdlc-v100-"
+            ) as temporary:
+                aircraft_root = Path(temporary) / name
+                original_hashes = self.copy_baseline(upstream, aircraft_root)
+                fms = aircraft_root / TARGETS[0]
+                v100 = apply_exact_text_replacements(fms.read_bytes(), fixture)
+                self.assertEqual(12, v100.count(b'if cpdlc_patch_lsk("'))
+                fms.write_bytes(v100)
+
+                self.run_installer(aircraft_root, "check")
+                self.run_installer(aircraft_root, "install")
+                installed = fms.read_bytes()
+                self.assertEqual(12, installed.count(b'if cpdlc_patch_lsk("'))
+                # only the display overlay hook carries the plain marker comment
+                self.assertEqual(1, installed.count(b"-- CPDLC PATCH\r\n") + installed.count(b"-- CPDLC PATCH\n"))
+                self.assertEqual(1, installed.count(b"-- BEGIN CPDLC PATCH MODULE"))
+
+                fresh_root = Path(temporary) / (name + " fresh")
+                self.copy_baseline(upstream, fresh_root)
+                self.run_installer(fresh_root, "install")
+                self.assertEqual(sha256(fresh_root / TARGETS[0]), sha256(fms))
+
+                self.run_installer(aircraft_root, "uninstall")
+                self.assertEqual(original_hashes[TARGETS[0]], sha256(fms))
 
     def test_unowned_source_change_is_preserved(self) -> None:
         for identifier, upstream, name, _, _ in self.baselines:

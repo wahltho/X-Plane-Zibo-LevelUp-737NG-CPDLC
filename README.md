@@ -79,6 +79,16 @@ The package is Toolkit-compatible (`compatibilityPackage`, manifest schema 3)
 and can be installed through the X-Plane 737NG Maintenance Toolkit when it is
 listed in its catalog.
 
+## Upgrading from 1.0.0
+
+Run `install` from the 1.1.0 package: the standalone installer replaces the
+unmarked 1.0.0 hook lines by marked blocks and the result equals a fresh
+installation. When installing through the Maintenance Toolkit over a file that
+still carries a 1.0.0 standalone installation, uninstall 1.0.0 with its own
+installer first. The Toolkit engine does not remove unmarked lines; a leftover
+1.0.0 hook line would be harmless at runtime (the hooks are idempotent) but
+the file would not match a clean installation.
+
 ## Tests
 
 `python3 -m unittest` runs the package contract tests. Set `ZIBO_40535_ROOT`

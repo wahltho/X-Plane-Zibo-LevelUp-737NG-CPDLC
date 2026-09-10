@@ -16,7 +16,7 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from patchlib import apply_exact_text_replacements, sha256_bytes, split_text_bytes  # noqa: E402
+from patchlib import apply_operation, sha256_bytes, split_text_bytes  # noqa: E402
 
 FMS_RELATIVE = "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
 
@@ -108,33 +108,62 @@ def make_fms_patch(reference_lines: list[str]) -> dict[str, Any]:
         new = [old[0], old[1], t * (tabs + 2) + "atc_proc_dir = word_txt[4]\t-- CPDLC PATCH: the fix follows DIRECT TO"]
         replacements.append({"name": name, "oldLines": old, "newLines": new})
 
-    # 8. LSK / PREV / NEXT hooks: first statement of every FMC1 key handler.
-    for key in ("1L", "2L", "3L", "4L", "5L", "6L", "1R", "2R", "3R", "4R", "5R", "6R"):
-        header = f"function B738_fmc1_{key}_CMDhandler(phase, duration)"
-        probe = _block(reference_lines, header, 6, f"hook {key}")
-        assert probe[1] == t + "if phase == 0 and fmc1_input_lag == 1 then", probe
-        key_index = next(i for i, line in enumerate(probe) if line == t * 2 + "B738DR_fms_key = 1")
-        old = probe[: key_index + 1]
-        new = old + [t * 2 + f'if cpdlc_patch_lsk("{key}") then fmc1_input_lag = 0 return end\t-- CPDLC PATCH']
-        replacements.append({"name": f"CPDLC key hook {key}", "oldLines": old, "newLines": new})
-
-    # 9. Display chain: overlay after the stock datalink pages.
+    # 8. Display chain: overlay after the stock datalink pages (a real replacement:
+    # the call is inserted between existing lines, the old block is not a
+    # sub-sequence of the new one).
     old = _block(reference_lines, t + "elseif page_dl_cpdlc_req_ver > 0 then", 5, "display hook")
     assert old[1] == t * 2 + "dl_cpdlc_req_ver()" and old[2] == t + "end" and old[4] == t + "act_page = act_page_buf", old
     new = [old[0], old[1], old[2], t + "cpdlc_patch_overlay()\t-- CPDLC PATCH", old[3], old[4]]
     replacements.append({"name": "CPDLC display overlay hook", "oldLines": old, "newLines": new})
 
-    # 10. dlnk_in_use: patch pages count as datalink in use.
-    old = _block(reference_lines, t * 2 + "dlnk_in_use = dlnk_in_use + page_dl_cpdlc_message + page_dl_cpdlc_unable", 1, "dlnk_in_use hook")
-    new = old + [t * 2 + "dlnk_in_use = dlnk_in_use + cpdlc_patch_in_use()\t-- CPDLC PATCH"]
-    replacements.append({"name": "CPDLC dlnk_in_use hook", "oldLines": old, "newLines": new})
-
-    # 11. Module insertion before the captain display function.
-    module = (Path(__file__).resolve().parents[1] / "src/cpdlc_patch_module.lua").read_text(encoding="utf-8").splitlines()
-    old = _block(reference_lines, "function B738_fmc_disp_capt()", 1, "module anchor")
-    replacements.append({"name": "CPDLC FANS pages module", "oldLines": old, "newLines": module + [""] + old})
-
     return {"format": "exact-text-replacements-v1", "replacements": replacements}
+
+
+def make_marked_blocks(reference_lines: list[str]) -> list[tuple[str, dict[str, Any]]]:
+    """Insertions as insert-marked-block-v1 payloads: (payload file name, spec)."""
+    t = "\t"
+    blocks: list[tuple[str, dict[str, Any]]] = []
+    for key in ("1L", "2L", "3L", "4L", "5L", "6L", "1R", "2R", "3R", "4R", "5R", "6R"):
+        header = f"function B738_fmc1_{key}_CMDhandler(phase, duration)"
+        probe = _block(reference_lines, header, 6, f"hook {key}")
+        assert probe[1] == t + "if phase == 0 and fmc1_input_lag == 1 then", probe
+        key_index = next(i for i, line in enumerate(probe) if line == t * 2 + "B738DR_fms_key = 1")
+        hook = t * 2 + f'if cpdlc_patch_lsk("{key}") then fmc1_input_lag = 0 return end'
+        blocks.append((f"B738.a_fms.lua.hook-{key}.json", {
+            "format": "insert-marked-block-v1",
+            "name": f"CPDLC key hook {key}",
+            "beginMarker": t * 2 + f"-- BEGIN CPDLC PATCH HOOK {key}",
+            "endMarker": t * 2 + f"-- END CPDLC PATCH HOOK {key}",
+            "anchorLines": probe[: key_index + 1],
+            "position": "after",
+            "contentLines": [hook],
+            "legacyLines": [hook + "\t-- CPDLC PATCH"],
+        }))
+    anchor = _block(reference_lines, t * 2 + "dlnk_in_use = dlnk_in_use + page_dl_cpdlc_message + page_dl_cpdlc_unable", 1, "dlnk_in_use hook")
+    blocks.append(("B738.a_fms.lua.hook-dlnk.json", {
+        "format": "insert-marked-block-v1",
+        "name": "CPDLC dlnk_in_use hook",
+        "beginMarker": t * 2 + "-- BEGIN CPDLC PATCH HOOK DLNK",
+        "endMarker": t * 2 + "-- END CPDLC PATCH HOOK DLNK",
+        "anchorLines": anchor,
+        "position": "after",
+        "contentLines": [t * 2 + "if cpdlc_patch_page ~= 0 and dlnk_in_use == 0 then dlnk_in_use = 1 end"],
+        "legacyLines": [t * 2 + "dlnk_in_use = dlnk_in_use + cpdlc_patch_in_use()\t-- CPDLC PATCH"],
+    }))
+    module = (Path(__file__).resolve().parents[1] / "src/cpdlc_patch_module.lua").read_text(encoding="utf-8").splitlines()
+    assert module[0] == "-- BEGIN CPDLC PATCH MODULE" and module[-1] == "-- END CPDLC PATCH MODULE", (module[0], module[-1])
+    blocks.append(("B738.a_fms.lua.module.json", {
+        "format": "insert-marked-block-v1",
+        "name": "CPDLC FANS pages module",
+        "beginMarker": module[0],
+        "endMarker": module[-1],
+        "anchorLines": _block(reference_lines, "function B738_fmc_disp_capt()", 1, "module anchor"),
+        "position": "before",
+        "contentLines": module[1:-1],
+        # 1.0.0 wrote the same block followed by a blank line (exact-text form).
+        "legacyLines": module + [""],
+    }))
+    return blocks
 
 
 def write_json(path: Path, value: dict[str, Any]) -> None:
@@ -156,12 +185,23 @@ def main() -> int:
     reference_lines, _, _ = split_text_bytes(reference)
     spec = make_fms_patch(reference_lines)
     write_json(repository / "patches/B738.a_fms.lua.json", spec)
+    blocks = make_marked_blocks(reference_lines)
+    for file_name, block in blocks:
+        write_json(repository / "patches" / file_name, block)
+    pipeline = [("exact-text-replacements-v1", "patches/B738.a_fms.lua.json", spec)] + [
+        ("insert-marked-block-v1", f"patches/{file_name}", block) for file_name, block in blocks
+    ]
+
+    def run_pipeline(data: bytes) -> bytes:
+        for operation, _, payload in pipeline:
+            data = apply_operation(data, operation, payload)
+        return data
 
     baselines = []
     for identifier, family, release, _ in BASELINES:
         source = (roots[identifier] / FMS_RELATIVE).read_bytes()
-        result = apply_exact_text_replacements(source, spec)
-        if apply_exact_text_replacements(result, spec) != result:
+        result = run_pipeline(source)
+        if run_pipeline(result) != result:
             raise RuntimeError(f"{identifier}: installed result is not idempotent")
         baselines.append({
             "aircraftFamily": family,
@@ -178,15 +218,17 @@ def main() -> int:
     manifest_path = repository / "package-manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
     manifest["supportedBaselines"] = baselines
-    payload = (repository / "patches/B738.a_fms.lua.json").read_bytes()
-    payload_entry = {"path": "patches/B738.a_fms.lua.json", "sha256": sha256_bytes(payload), "size": len(payload)}
+    payload_entries = []
+    targets = []
+    for operation, path, _ in pipeline:
+        data = (repository / path).read_bytes()
+        payload_entries.append({"path": path, "sha256": sha256_bytes(data), "size": len(data)})
+        targets.append({"operation": operation, "payload": path, "relativePath": FMS_RELATIVE, "sourceSha256": []})
     for module in manifest.get("modules", []):
-        module["payloads"] = [payload_entry]
-    manifest["payloads"] = [payload_entry]
-    manifest["targets"] = [
-        {key: value for key, value in target.items() if key != "sourceSha256"}
-        for module in manifest.get("modules", []) for target in module["targets"]
-    ]
+        module["payloads"] = payload_entries
+        module["targets"] = targets
+    manifest["payloads"] = payload_entries
+    manifest["targets"] = [{key: value for key, value in target.items() if key != "sourceSha256"} for target in targets]
     if manifest:
         write_json(manifest_path, manifest)
     return 0

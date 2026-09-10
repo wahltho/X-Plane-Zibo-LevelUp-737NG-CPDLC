@@ -126,13 +126,95 @@ def remove_exact_text_replacements(data: bytes, spec: dict[str, Any]) -> bytes:
     return join_text_bytes(lines, eol, has_final_eol)
 
 
+def _marked_block_spec(spec: dict[str, Any]) -> tuple[str, str, str, list[str], list[str], str, list[str]]:
+    if spec.get("format") != "insert-marked-block-v1":
+        raise PatchError("Unsupported marked-block patch format")
+    name = spec.get("name", "unnamed marked block")
+    begin = spec["beginMarker"]
+    end = spec["endMarker"]
+    content = list(spec["contentLines"])
+    anchors = list(spec["anchorLines"])
+    position = spec["position"]
+    legacy = list(spec.get("legacyLines", []))
+    if begin == end or begin in content or end in content:
+        raise PatchError(f"{name}: block markers must be unique and outside contentLines")
+    if position not in ("before", "after"):
+        raise PatchError(f"{name}: position must be 'before' or 'after'")
+    if not anchors:
+        raise PatchError(f"{name}: anchorLines must not be empty")
+    return name, begin, end, content, anchors, position, legacy
+
+
+def _remove_legacy_lines(lines: list[str], legacy: list[str], name: str) -> None:
+    """Strip the unmarked lines written by a release before marked blocks.
+
+    Toolkit engines ignore `legacyLines`; the hooks are idempotent so a
+    leftover unmarked line is harmless there. The standalone installer
+    removes it so upgraded files equal fresh installations.
+    """
+    if not legacy:
+        return
+    matches = _find_sequence(lines, legacy)
+    if len(matches) > 1:
+        raise PatchError(f"{name}: found {len(matches)} unmarked blocks from an earlier release")
+    if matches:
+        del lines[matches[0] : matches[0] + len(legacy)]
+
+
+def apply_marked_block_insertion(data: bytes, spec: dict[str, Any]) -> bytes:
+    name, begin, end, content, anchors, position, legacy = _marked_block_spec(spec)
+    lines, eol, has_final_eol = split_text_bytes(data)
+    installed = [begin] + content + [end]
+    # An earlier release may have written the block without or with different
+    # framing; strip that exact legacy form first so the clean block is inserted.
+    _remove_legacy_lines(lines, legacy, name)
+    begin_matches = _find_sequence(lines, [begin])
+    end_matches = _find_sequence(lines, [end])
+    if begin_matches or end_matches:
+        installed_matches = _find_sequence(lines, installed)
+        if len(begin_matches) == 1 and len(end_matches) == 1 and len(installed_matches) == 1:
+            return data
+        raise PatchError(
+            f"{name}: marked block is partial, duplicated or modified; "
+            f"found begin={len(begin_matches)}, end={len(end_matches)}, exact={len(installed_matches)}"
+        )
+    anchor_matches = _find_sequence(lines, anchors)
+    if len(anchor_matches) != 1:
+        raise PatchError(f"{name}: expected exactly one insertion anchor; found {len(anchor_matches)}")
+    insert_at = anchor_matches[0] if position == "before" else anchor_matches[0] + len(anchors)
+    lines[insert_at:insert_at] = installed
+    return join_text_bytes(lines, eol, has_final_eol)
+
+
+def remove_marked_block_insertion(data: bytes, spec: dict[str, Any]) -> bytes:
+    name, begin, end, content, _anchors, _position, legacy = _marked_block_spec(spec)
+    lines, eol, has_final_eol = split_text_bytes(data)
+    installed = [begin] + content + [end]
+    _remove_legacy_lines(lines, legacy, name)
+    installed_matches = _find_sequence(lines, installed)
+    begin_matches = _find_sequence(lines, [begin])
+    end_matches = _find_sequence(lines, [end])
+    if len(installed_matches) == 1:
+        del lines[installed_matches[0] : installed_matches[0] + len(installed)]
+    elif begin_matches or end_matches:
+        raise PatchError(
+            f"{name}: marked block is partial, duplicated or modified; "
+            f"found begin={len(begin_matches)}, end={len(end_matches)}, exact={len(installed_matches)}"
+        )
+    return join_text_bytes(lines, eol, has_final_eol)
+
+
 def apply_operation(data: bytes, operation: str, spec: dict[str, Any]) -> bytes:
     if operation == "exact-text-replacements-v1":
         return apply_exact_text_replacements(data, spec)
+    if operation == "insert-marked-block-v1":
+        return apply_marked_block_insertion(data, spec)
     raise PatchError(f"Unsupported patch operation: {operation}")
 
 
 def remove_operation(data: bytes, operation: str, spec: dict[str, Any]) -> bytes:
     if operation == "exact-text-replacements-v1":
         return remove_exact_text_replacements(data, spec)
+    if operation == "insert-marked-block-v1":
+        return remove_marked_block_insertion(data, spec)
     raise PatchError(f"Unsupported patch operation: {operation}")

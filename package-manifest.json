@@ -15,8 +15,78 @@
       "payloads": [
         {
           "path": "patches/B738.a_fms.lua.json",
-          "sha256": "644bfe469a4629a2d43dcfa0d4f1c4500cff3208a2e8e129c3c484c77925bb13",
-          "size": 70640
+          "sha256": "122c4125d8ee31e680701fbcb88927ca49e5e73be60d6a85dbcd7338d60cbbbf",
+          "size": 6539
+        },
+        {
+          "path": "patches/B738.a_fms.lua.hook-1L.json",
+          "sha256": "7aef152b1d53026221d1ee62695f3958f39eecc061d6fcae70a3b5737d1b940a",
+          "size": 580
+        },
+        {
+          "path": "patches/B738.a_fms.lua.hook-2L.json",
+          "sha256": "77fdac2d0b2affc90ad58954941bd10ac2341ab28bb5b16e9fbbe3d8cfc6bcaf",
+          "size": 568
+        },
+        {
+          "path": "patches/B738.a_fms.lua.hook-3L.json",
+          "sha256": "1cc34256a2bb15af54ee908a74d758b0f866bf08d85be6a21c3f2007b88a3bf7",
+          "size": 568
+        },
+        {
+          "path": "patches/B738.a_fms.lua.hook-4L.json",
+          "sha256": "6380fe07a61cf46654a6af00ecd24c9eff8e86bcda60366aa5f051b497701010",
+          "size": 568
+        },
+        {
+          "path": "patches/B738.a_fms.lua.hook-5L.json",
+          "sha256": "b7e26e4830929357e6cbfa6f625039b3949591c00a47e831debfa1e8d12fb9ab",
+          "size": 568
+        },
+        {
+          "path": "patches/B738.a_fms.lua.hook-6L.json",
+          "sha256": "f30d6e1765a484a0c3c6f84727c538fa13d754512e1e7d54455635def1b57f18",
+          "size": 568
+        },
+        {
+          "path": "patches/B738.a_fms.lua.hook-1R.json",
+          "sha256": "de1001db6619003b6349f6924b85651a95eb9bbb8b19835cbf775c6790116d5e",
+          "size": 568
+        },
+        {
+          "path": "patches/B738.a_fms.lua.hook-2R.json",
+          "sha256": "f7b9b7cbbdfe0691a744cf650b50e990961f42e448a0c6be452f40a74721ac03",
+          "size": 568
+        },
+        {
+          "path": "patches/B738.a_fms.lua.hook-3R.json",
+          "sha256": "62ae6f59f1b3b90c4627316bdeafbc1403faec41904bc299f2401191de36ed20",
+          "size": 568
+        },
+        {
+          "path": "patches/B738.a_fms.lua.hook-4R.json",
+          "sha256": "2f77ef0416f3e1152de201e80ad8caeff73afaa0b7fe99486ee712971ab5d071",
+          "size": 568
+        },
+        {
+          "path": "patches/B738.a_fms.lua.hook-5R.json",
+          "sha256": "85fd40d3aa97865ea2aeedec593c76c30bcbbda33834057c4b42f42fc9bc7dba",
+          "size": 568
+        },
+        {
+          "path": "patches/B738.a_fms.lua.hook-6R.json",
+          "sha256": "1dc7ac083566d18ab1133661bb323e7e619540a97c92d1981a9bb5a2ea7a2e9d",
+          "size": 568
+        },
+        {
+          "path": "patches/B738.a_fms.lua.hook-dlnk.json",
+          "sha256": "91488db3f70a901c68502834d5e33ca2b60c4cf207d7d55b2e176afca3e835af",
+          "size": 518
+        },
+        {
+          "path": "patches/B738.a_fms.lua.module.json",
+          "sha256": "197d21e6637dabbda0771782b47a45a8acc935d9fe5df47003573a0729ecf961",
+          "size": 104789
         }
       ],
       "policy": "optional",
@@ -27,18 +97,172 @@
           "payload": "patches/B738.a_fms.lua.json",
           "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
           "sourceSha256": []
+        },
+        {
+          "operation": "insert-marked-block-v1",
+          "payload": "patches/B738.a_fms.lua.hook-1L.json",
+          "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+          "sourceSha256": []
+        },
+        {
+          "operation": "insert-marked-block-v1",
+          "payload": "patches/B738.a_fms.lua.hook-2L.json",
+          "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+          "sourceSha256": []
+        },
+        {
+          "operation": "insert-marked-block-v1",
+          "payload": "patches/B738.a_fms.lua.hook-3L.json",
+          "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+          "sourceSha256": []
+        },
+        {
+          "operation": "insert-marked-block-v1",
+          "payload": "patches/B738.a_fms.lua.hook-4L.json",
+          "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+          "sourceSha256": []
+        },
+        {
+          "operation": "insert-marked-block-v1",
+          "payload": "patches/B738.a_fms.lua.hook-5L.json",
+          "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+          "sourceSha256": []
+        },
+        {
+          "operation": "insert-marked-block-v1",
+          "payload": "patches/B738.a_fms.lua.hook-6L.json",
+          "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+          "sourceSha256": []
+        },
+        {
+          "operation": "insert-marked-block-v1",
+          "payload": "patches/B738.a_fms.lua.hook-1R.json",
+          "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+          "sourceSha256": []
+        },
+        {
+          "operation": "insert-marked-block-v1",
+          "payload": "patches/B738.a_fms.lua.hook-2R.json",
+          "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+          "sourceSha256": []
+        },
+        {
+          "operation": "insert-marked-block-v1",
+          "payload": "patches/B738.a_fms.lua.hook-3R.json",
+          "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+          "sourceSha256": []
+        },
+        {
+          "operation": "insert-marked-block-v1",
+          "payload": "patches/B738.a_fms.lua.hook-4R.json",
+          "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+          "sourceSha256": []
+        },
+        {
+          "operation": "insert-marked-block-v1",
+          "payload": "patches/B738.a_fms.lua.hook-5R.json",
+          "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+          "sourceSha256": []
+        },
+        {
+          "operation": "insert-marked-block-v1",
+          "payload": "patches/B738.a_fms.lua.hook-6R.json",
+          "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+          "sourceSha256": []
+        },
+        {
+          "operation": "insert-marked-block-v1",
+          "payload": "patches/B738.a_fms.lua.hook-dlnk.json",
+          "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+          "sourceSha256": []
+        },
+        {
+          "operation": "insert-marked-block-v1",
+          "payload": "patches/B738.a_fms.lua.module.json",
+          "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+          "sourceSha256": []
         }
       ]
     }
   ],
   "packageId": "wahltho.zibo-40535.cpdlc",
   "packageType": "compatibilityPackage",
-  "packageVersion": "1.0.0",
+  "packageVersion": "1.1.0",
   "payloads": [
     {
       "path": "patches/B738.a_fms.lua.json",
-      "sha256": "644bfe469a4629a2d43dcfa0d4f1c4500cff3208a2e8e129c3c484c77925bb13",
-      "size": 70640
+      "sha256": "122c4125d8ee31e680701fbcb88927ca49e5e73be60d6a85dbcd7338d60cbbbf",
+      "size": 6539
+    },
+    {
+      "path": "patches/B738.a_fms.lua.hook-1L.json",
+      "sha256": "7aef152b1d53026221d1ee62695f3958f39eecc061d6fcae70a3b5737d1b940a",
+      "size": 580
+    },
+    {
+      "path": "patches/B738.a_fms.lua.hook-2L.json",
+      "sha256": "77fdac2d0b2affc90ad58954941bd10ac2341ab28bb5b16e9fbbe3d8cfc6bcaf",
+      "size": 568
+    },
+    {
+      "path": "patches/B738.a_fms.lua.hook-3L.json",
+      "sha256": "1cc34256a2bb15af54ee908a74d758b0f866bf08d85be6a21c3f2007b88a3bf7",
+      "size": 568
+    },
+    {
+      "path": "patches/B738.a_fms.lua.hook-4L.json",
+      "sha256": "6380fe07a61cf46654a6af00ecd24c9eff8e86bcda60366aa5f051b497701010",
+      "size": 568
+    },
+    {
+      "path": "patches/B738.a_fms.lua.hook-5L.json",
+      "sha256": "b7e26e4830929357e6cbfa6f625039b3949591c00a47e831debfa1e8d12fb9ab",
+      "size": 568
+    },
+    {
+      "path": "patches/B738.a_fms.lua.hook-6L.json",
+      "sha256": "f30d6e1765a484a0c3c6f84727c538fa13d754512e1e7d54455635def1b57f18",
+      "size": 568
+    },
+    {
+      "path": "patches/B738.a_fms.lua.hook-1R.json",
+      "sha256": "de1001db6619003b6349f6924b85651a95eb9bbb8b19835cbf775c6790116d5e",
+      "size": 568
+    },
+    {
+      "path": "patches/B738.a_fms.lua.hook-2R.json",
+      "sha256": "f7b9b7cbbdfe0691a744cf650b50e990961f42e448a0c6be452f40a74721ac03",
+      "size": 568
+    },
+    {
+      "path": "patches/B738.a_fms.lua.hook-3R.json",
+      "sha256": "62ae6f59f1b3b90c4627316bdeafbc1403faec41904bc299f2401191de36ed20",
+      "size": 568
+    },
+    {
+      "path": "patches/B738.a_fms.lua.hook-4R.json",
+      "sha256": "2f77ef0416f3e1152de201e80ad8caeff73afaa0b7fe99486ee712971ab5d071",
+      "size": 568
+    },
+    {
+      "path": "patches/B738.a_fms.lua.hook-5R.json",
+      "sha256": "85fd40d3aa97865ea2aeedec593c76c30bcbbda33834057c4b42f42fc9bc7dba",
+      "size": 568
+    },
+    {
+      "path": "patches/B738.a_fms.lua.hook-6R.json",
+      "sha256": "1dc7ac083566d18ab1133661bb323e7e619540a97c92d1981a9bb5a2ea7a2e9d",
+      "size": 568
+    },
+    {
+      "path": "patches/B738.a_fms.lua.hook-dlnk.json",
+      "sha256": "91488db3f70a901c68502834d5e33ca2b60c4cf207d7d55b2e176afca3e835af",
+      "size": 518
+    },
+    {
+      "path": "patches/B738.a_fms.lua.module.json",
+      "sha256": "197d21e6637dabbda0771782b47a45a8acc935d9fe5df47003573a0729ecf961",
+      "size": 104789
     }
   ],
   "repositoryUrl": "https://github.com/wahltho/X-Plane-Zibo-LevelUp-737NG-CPDLC",
@@ -69,7 +293,7 @@
       "files": [
         {
           "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
-          "resultSha256": "35e7641e56ce0bcbb29673bf83583ea1052252bfd98539d031a1177d7d876149",
+          "resultSha256": "ef0b9f484e5432f892679ce3d08ddea677429ab4121fc6f3fc8e84383fb9b91d",
           "sourceSha256": "ff313b0e88c62845ad1c4a2b1f4bd599f57d8799e8d6707bfc10a3369fd63a8e"
         }
       ],
@@ -81,7 +305,7 @@
       "files": [
         {
           "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
-          "resultSha256": "b45b173bff71ef535d244014cff1f4871553b02c2721ac746c12bf96a82377ae",
+          "resultSha256": "61cf2fa427e3ee1e9b8afc4ad730959657cb354644e926bc3adfaab6bd76ffc3",
           "sourceSha256": "757057120c2953a9cdefbfebcd593bdb4fd9636721328fb1ce6d6550f8f49384"
         }
       ],
@@ -98,6 +322,76 @@
     {
       "operation": "exact-text-replacements-v1",
       "payload": "patches/B738.a_fms.lua.json",
+      "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
+    },
+    {
+      "operation": "insert-marked-block-v1",
+      "payload": "patches/B738.a_fms.lua.hook-1L.json",
+      "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
+    },
+    {
+      "operation": "insert-marked-block-v1",
+      "payload": "patches/B738.a_fms.lua.hook-2L.json",
+      "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
+    },
+    {
+      "operation": "insert-marked-block-v1",
+      "payload": "patches/B738.a_fms.lua.hook-3L.json",
+      "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
+    },
+    {
+      "operation": "insert-marked-block-v1",
+      "payload": "patches/B738.a_fms.lua.hook-4L.json",
+      "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
+    },
+    {
+      "operation": "insert-marked-block-v1",
+      "payload": "patches/B738.a_fms.lua.hook-5L.json",
+      "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
+    },
+    {
+      "operation": "insert-marked-block-v1",
+      "payload": "patches/B738.a_fms.lua.hook-6L.json",
+      "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
+    },
+    {
+      "operation": "insert-marked-block-v1",
+      "payload": "patches/B738.a_fms.lua.hook-1R.json",
+      "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
+    },
+    {
+      "operation": "insert-marked-block-v1",
+      "payload": "patches/B738.a_fms.lua.hook-2R.json",
+      "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
+    },
+    {
+      "operation": "insert-marked-block-v1",
+      "payload": "patches/B738.a_fms.lua.hook-3R.json",
+      "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
+    },
+    {
+      "operation": "insert-marked-block-v1",
+      "payload": "patches/B738.a_fms.lua.hook-4R.json",
+      "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
+    },
+    {
+      "operation": "insert-marked-block-v1",
+      "payload": "patches/B738.a_fms.lua.hook-5R.json",
+      "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
+    },
+    {
+      "operation": "insert-marked-block-v1",
+      "payload": "patches/B738.a_fms.lua.hook-6R.json",
+      "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
+    },
+    {
+      "operation": "insert-marked-block-v1",
+      "payload": "patches/B738.a_fms.lua.hook-dlnk.json",
+      "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
+    },
+    {
+      "operation": "insert-marked-block-v1",
+      "payload": "patches/B738.a_fms.lua.module.json",
       "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
     }
   ]

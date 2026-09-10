@@ -1,0 +1,18 @@
+{
+  "anchorLines": [
+    "function B738_fmc1_3L_CMDhandler(phase, duration)",
+    "\tif phase == 0 and fmc1_input_lag == 1 then",
+    "\t\tB738DR_fms_key = 1"
+  ],
+  "beginMarker": "\t\t-- BEGIN CPDLC PATCH HOOK 3L",
+  "contentLines": [
+    "\t\tif cpdlc_patch_lsk(\"3L\") then fmc1_input_lag = 0 return end"
+  ],
+  "endMarker": "\t\t-- END CPDLC PATCH HOOK 3L",
+  "format": "insert-marked-block-v1",
+  "legacyLines": [
+    "\t\tif cpdlc_patch_lsk(\"3L\") then fmc1_input_lag = 0 return end\t-- CPDLC PATCH"
+  ],
+  "name": "CPDLC key hook 3L",
+  "position": "after"
+}

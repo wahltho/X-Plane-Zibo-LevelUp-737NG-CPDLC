@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.1.0
+
+- Toolkit-compatible package layout: the 14 insertions (12 LSK hooks, the
+  `dlnk_in_use` hook and the FANS pages module) are `insert-marked-block-v1`
+  blocks with unique begin/end markers; the eight real replacements stay
+  `exact-text-replacements-v1`. One pipeline of 15 operations on
+  `B738.a_fms.lua`.
+- `dlnk_in_use` hook is idempotent (`if cpdlc_patch_page ~= 0 and
+  dlnk_in_use == 0 then dlnk_in_use = 1 end`).
+- Standalone installer: per-file operation pipelines, marked-block support,
+  and in-place upgrade of a 1.0.0 installation (its unmarked hook lines are
+  replaced by marked blocks; the result equals a fresh installation).
+- No functional change to the pages.
+
 ## 1.0.0
 
 - Boeing FANS ATC INDEX layout (EMERGENCY, POS REPORT, REQUEST, WHEN CAN WE,

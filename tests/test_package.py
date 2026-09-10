@@ -17,7 +17,7 @@ class PackageContractTests(unittest.TestCase):
         )
         self.assertEqual(3, manifest["schemaVersion"])
         self.assertEqual("compatibilityPackage", manifest["packageType"])
-        self.assertEqual("1.0.0", manifest["packageVersion"])
+        self.assertEqual("1.1.0", manifest["packageVersion"])
         self.assertEqual(
             ["zibo-737ng", "levelup-737ng"],
             manifest["supportedProducts"],
@@ -25,7 +25,21 @@ class PackageContractTests(unittest.TestCase):
         payloads = {item["path"]: item for item in manifest["payloads"]}
         targets = manifest["targets"]
         self.assertEqual(set(payloads), {target["payload"] for target in targets})
-        self.assertEqual(1, len(targets))
+        self.assertEqual(15, len(targets))
+        self.assertEqual("exact-text-replacements-v1", targets[0]["operation"])
+        self.assertTrue(all(target["operation"] == "insert-marked-block-v1" for target in targets[1:]))
+        self.assertEqual(1, len({target["relativePath"] for target in targets}))
+        exact = json.loads((REPOSITORY_ROOT / targets[0]["payload"]).read_text(encoding="utf-8"))
+        for replacement in exact["replacements"]:
+            old, new = replacement["oldLines"], replacement["newLines"]
+            inside = any(new[i:i + len(old)] == old for i in range(len(new) - len(old) + 1))
+            self.assertFalse(inside, replacement["name"])
+        for target in targets[1:]:
+            block = json.loads((REPOSITORY_ROOT / target["payload"]).read_text(encoding="utf-8"))
+            self.assertNotEqual(block["beginMarker"], block["endMarker"])
+            self.assertNotIn(block["beginMarker"], block["contentLines"])
+            self.assertNotIn(block["endMarker"], block["contentLines"])
+            self.assertIn(block["position"], ("before", "after"))
         target_paths = {target["relativePath"] for target in targets}
         baselines = manifest["supportedBaselines"]
         self.assertEqual(

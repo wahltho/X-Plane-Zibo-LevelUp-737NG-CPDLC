@@ -1,0 +1,16 @@
+{
+  "anchorLines": [
+    "\t\tdlnk_in_use = dlnk_in_use + page_dl_cpdlc_message + page_dl_cpdlc_unable"
+  ],
+  "beginMarker": "\t\t-- BEGIN CPDLC PATCH HOOK DLNK",
+  "contentLines": [
+    "\t\tif cpdlc_patch_page ~= 0 and dlnk_in_use == 0 then dlnk_in_use = 1 end"
+  ],
+  "endMarker": "\t\t-- END CPDLC PATCH HOOK DLNK",
+  "format": "insert-marked-block-v1",
+  "legacyLines": [
+    "\t\tdlnk_in_use = dlnk_in_use + cpdlc_patch_in_use()\t-- CPDLC PATCH"
+  ],
+  "name": "CPDLC dlnk_in_use hook",
+  "position": "after"
+}

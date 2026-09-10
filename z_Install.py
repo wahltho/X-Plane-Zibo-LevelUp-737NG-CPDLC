@@ -116,7 +116,7 @@ def _detect_baseline(
     aircraft_root: Path, manifest: dict[str, Any]
 ) -> dict[str, Any] | None:
     actual: dict[str, str] = {}
-    for target in manifest["targets"]:
+    for target in _unique_targets(manifest):
         path = _target_path(aircraft_root, target)
         if not path.is_file():
             raise PatchError(f"Required aircraft file is missing: {target['relativePath']}")
@@ -135,16 +135,40 @@ def _detect_baseline(
     return None
 
 
+def _targets_by_path(manifest: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+    """Targets grouped per file in manifest order: one pipeline per file."""
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for target in manifest["targets"]:
+        grouped.setdefault(target["relativePath"], []).append(target)
+    return grouped
+
+
+def _unique_targets(manifest: dict[str, Any]) -> list[dict[str, Any]]:
+    return [targets[0] for targets in _targets_by_path(manifest).values()]
+
+
+def _apply_pipeline(data: bytes, targets: list[dict[str, Any]]) -> bytes:
+    for target in targets:
+        payload = load_json(PACKAGE_ROOT / _safe_relative_path(target["payload"]))
+        data = apply_operation(data, target["operation"], payload)
+    return data
+
+
+def _remove_pipeline(data: bytes, targets: list[dict[str, Any]]) -> bytes:
+    for target in reversed(targets):
+        payload = load_json(PACKAGE_ROOT / _safe_relative_path(target["payload"]))
+        data = remove_operation(data, target["operation"], payload)
+    return data
+
+
 def _transform_targets(
     aircraft_root: Path, manifest: dict[str, Any], baseline: dict[str, Any] | None
 ) -> dict[str, bytes]:
     transformed: dict[str, bytes] = {}
     baseline_files = _baseline_file_map(baseline) if baseline is not None else None
-    for target in manifest["targets"]:
-        relative = target["relativePath"]
-        source = _target_path(aircraft_root, target).read_bytes()
-        payload = load_json(PACKAGE_ROOT / _safe_relative_path(target["payload"]))
-        result = apply_operation(source, target["operation"], payload)
+    for relative, targets in _targets_by_path(manifest).items():
+        source = _target_path(aircraft_root, targets[0]).read_bytes()
+        result = _apply_pipeline(source, targets)
         actual = sha256_bytes(result)
         expected = baseline_files[relative]["resultSha256"] if baseline_files else None
         if expected is not None and actual != expected:
@@ -159,11 +183,9 @@ def _transform_targets(
 
 def _remove_targets(aircraft_root: Path, manifest: dict[str, Any]) -> dict[str, bytes]:
     transformed: dict[str, bytes] = {}
-    for target in manifest["targets"]:
-        relative = target["relativePath"]
-        source = _target_path(aircraft_root, target).read_bytes()
-        payload = load_json(PACKAGE_ROOT / _safe_relative_path(target["payload"]))
-        transformed[relative] = remove_operation(source, target["operation"], payload)
+    for relative, targets in _targets_by_path(manifest).items():
+        source = _target_path(aircraft_root, targets[0]).read_bytes()
+        transformed[relative] = _remove_pipeline(source, targets)
     return transformed
 
 
@@ -183,12 +205,10 @@ def _verify_state(aircraft_root: Path, state: dict[str, Any], manifest: dict[str
         if not path.is_file():
             raise PatchError(f"Installed file is missing: {item['relativePath']}")
         current = path.read_bytes()
-        target = next(
-            target for target in manifest["targets"]
-            if target["relativePath"] == item["relativePath"]
-        )
-        payload = load_json(PACKAGE_ROOT / _safe_relative_path(target["payload"]))
-        verified = apply_operation(current, target["operation"], payload)
+        targets = _targets_by_path(manifest).get(item["relativePath"], [])
+        if not targets:
+            raise PatchError(f"Installed file is not a package target: {item['relativePath']}")
+        verified = _apply_pipeline(current, targets)
         if verified != current:
             raise PatchError(
                 f"Installed CPDLC blocks are missing from: {item['relativePath']}"
@@ -232,7 +252,7 @@ def command_install(aircraft_root: Path, manifest: dict[str, Any]) -> int:
     backup_root.mkdir(parents=True, exist_ok=False)
     state_files: list[dict[str, Any]] = []
 
-    for target in manifest["targets"]:
+    for target in _unique_targets(manifest):
         relative = target["relativePath"]
         source = _target_path(aircraft_root, target)
         backup = backup_root / _safe_relative_path(relative)
@@ -250,7 +270,7 @@ def command_install(aircraft_root: Path, manifest: dict[str, Any]) -> int:
         with tempfile.TemporaryDirectory(prefix="cpdlc-stage-", dir=state_root) as name:
             staging_root = Path(name)
             staged: dict[str, Path] = {}
-            for target in manifest["targets"]:
+            for target in _unique_targets(manifest):
                 relative = target["relativePath"]
                 destination = _target_path(aircraft_root, target)
                 temporary = staging_root / _safe_relative_path(relative)
@@ -258,7 +278,7 @@ def command_install(aircraft_root: Path, manifest: dict[str, Any]) -> int:
                 temporary.write_bytes(transformed[relative])
                 os.chmod(temporary, stat.S_IMODE(destination.stat().st_mode))
                 staged[relative] = temporary
-            for target in manifest["targets"]:
+            for target in _unique_targets(manifest):
                 relative = target["relativePath"]
                 os.replace(staged[relative], _target_path(aircraft_root, target))
 
@@ -276,7 +296,7 @@ def command_install(aircraft_root: Path, manifest: dict[str, Any]) -> int:
         }
         _write_json_atomic(_state_path(aircraft_root), state_document)
     except Exception:
-        for target in manifest["targets"]:
+        for target in _unique_targets(manifest):
             relative = target["relativePath"]
             backup = backup_root / _safe_relative_path(relative)
             destination = _target_path(aircraft_root, target)

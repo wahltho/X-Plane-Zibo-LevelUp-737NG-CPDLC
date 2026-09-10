@@ -11,6 +11,9 @@ from pathlib import Path
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 DIST_ROOT = REPOSITORY_ROOT / "dist"
+_MANIFEST = json.loads((REPOSITORY_ROOT / "package-manifest.json").read_text(encoding="utf-8"))
+MODULE_ID = "cpdlc"
+MODULE_PAYLOADS = tuple(item["path"] for item in _MANIFEST["payloads"])
 PACKAGE_FILES = (
     "CHANGELOG.md",
     "INSTALLATION.md",
@@ -20,13 +23,8 @@ PACKAGE_FILES = (
     "SOURCE.md",
     "package-manifest.json",
     "patchlib.py",
-    "patches/B738.a_fms.lua.json",
     "z_Install.py",
-)
-MODULE_ID = "cpdlc"
-MODULE_PAYLOADS = (
-    "patches/B738.a_fms.lua.json",
-)
+) + MODULE_PAYLOADS
 
 
 def main() -> int:
