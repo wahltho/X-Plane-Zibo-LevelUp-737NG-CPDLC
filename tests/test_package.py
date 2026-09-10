@@ -17,7 +17,7 @@ class PackageContractTests(unittest.TestCase):
         )
         self.assertEqual(3, manifest["schemaVersion"])
         self.assertEqual("compatibilityPackage", manifest["packageType"])
-        self.assertEqual("0.1.0", manifest["packageVersion"])
+        self.assertEqual("1.0.0", manifest["packageVersion"])
         self.assertEqual(
             ["zibo-737ng", "levelup-737ng"],
             manifest["supportedProducts"],

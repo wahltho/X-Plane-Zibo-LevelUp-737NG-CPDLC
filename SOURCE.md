@@ -7,8 +7,8 @@ files. No complete upstream file is distributed by this repository.
 
 | Baseline | File | Source SHA-256 | Installed SHA-256 |
 |---|---|---|---|
-| Zibo 4.05.35 | `B738.a_fms.lua` | `ff313b0e88c62845ad1c4a2b1f4bd599f57d8799e8d6707bfc10a3369fd63a8e` | `1c37e88b69162ab0d747541ba287dc8327a7de097c9d6c15d61c73ee10857f03` |
-| LevelUp V2.S1.50 | `B738.a_fms.lua` | `757057120c2953a9cdefbfebcd593bdb4fd9636721328fb1ce6d6550f8f49384` | `c70b28fe874f600680c7d79ceace5091025f5dd7a406670e986ea0f387ded5a9` |
+| Zibo B737-800X 4.05.35 | `B738.a_fms.lua` | `ff313b0e88c62845ad1c4a2b1f4bd599f57d8799e8d6707bfc10a3369fd63a8e` | `35e7641e56ce0bcbb29673bf83583ea1052252bfd98539d031a1177d7d876149` |
+| LevelUp 737NG Series V2.S1.50 | `B738.a_fms.lua` | `757057120c2953a9cdefbfebcd593bdb4fd9636721328fb1ce6d6550f8f49384` | `b45b173bff71ef535d244014cff1f4871553b02c2721ac746c12bf96a82377ae` |
 
 Both baselines use CRLF in `B738.a_fms.lua`; the installer preserves the
 target's existing convention. LevelUp V2.S1 contains no CPDLC code and is not
@@ -25,9 +25,16 @@ Hoppie transport plugin -> hoppiebridge/poll_message_*
   -> dl_menu()                (DLNK-APPLICATION MENU, block 5)
 ```
 
-All five blocks are owned by `B738.a_fms.lua`. Every block occurs exactly
-once in both baselines; the generator in `tools/make_patch_payloads.py`
-verifies that before writing the payload.
+All 22 replacements are owned by `B738.a_fms.lua`: five behavior fixes, two
+`PROCEED DIRECT TO` parser fixes, 14 one-line key hooks (12 LSKs, PREV, NEXT),
+the display overlay hook, the `dlnk_in_use` hook and the page module
+(`src/cpdlc_patch_module.lua`, inserted before `B738_fmc_disp_capt()`). Every
+old block occurs exactly once in both baselines; the generator in
+`tools/make_patch_payloads.py` verifies that and the idempotency of the result
+before writing the payload. The module only calls stock functions and globals
+that exist in both baselines (`atc_msg_shift`, `send_cpdlc`,
+`find_act_route_wpt2`, `create_legs_abeam_list`, `rte_copy`, `rte_paste`,
+`lat_lon_legs2/8`, `add_fmc_msg`, `null_fmc_disp`, `reset_fmc_pages`).
 
 ## Reference implementation
 

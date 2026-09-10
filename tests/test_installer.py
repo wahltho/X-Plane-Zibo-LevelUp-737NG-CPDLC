@@ -34,6 +34,10 @@ CPDLC_MARKERS = (
     "-- CPDLC PATCH: STANDBY stays available until it has been sent (status 3)",
     "-- CPDLC PATCH: FANS has no automatic abort of an unanswered uplink;",
     "-- CPDLC PATCH: reach the ATC pages without an ATC key",
+    "-- BEGIN CPDLC PATCH MODULE",
+    "-- END CPDLC PATCH MODULE",
+    "\tcpdlc_patch_overlay()\t-- CPDLC PATCH",
+    "dlnk_in_use = dlnk_in_use + cpdlc_patch_in_use()\t-- CPDLC PATCH",
 )
 
 
@@ -190,7 +194,7 @@ class InstallerIntegrationTests(unittest.TestCase):
                     )
                 )
                 self.assertEqual("wahltho.zibo-40535.cpdlc", state["packageId"])
-                self.assertEqual("0.1.0", state["packageVersion"])
+                self.assertEqual("1.0.0", state["packageVersion"])
                 self.assertEqual(identifier, state["baselineId"])
                 self.assertEqual(1, len(state["files"]))
 
@@ -206,6 +210,9 @@ class InstallerIntegrationTests(unittest.TestCase):
                 self.assertEqual(1, fms.count("if atc_msg_rsp[ggg] ~= 0 and atc_msg_rcv_snd[ggg] == 1 then"))
                 self.assertEqual(1, fms.count('line2_l = "<ATC            AOC STD>"'))
                 self.assertEqual(1, fms.count("if atc_msg_status[in_msg] ~= 3 then"))
+                self.assertEqual(14, fms.count('if cpdlc_patch_lsk("'))
+                self.assertEqual(2, fms.count("atc_proc_dir = word_txt[4]\t-- CPDLC PATCH: the fix follows DIRECT TO"))
+                self.assertEqual(1, fms.count("function cpdlc_patch_load_direct()"))
 
                 luac = find_lua51_compiler()
                 if luac:

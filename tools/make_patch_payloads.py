@@ -101,6 +101,39 @@ def make_fms_patch(reference_lines: list[str]) -> dict[str, Any]:
     ]
     replacements.append({"name": "CPDLC datalink menu ATC prompt", "oldLines": old, "newLines": new})
 
+    # 6./7. PROCEED DIRECT TO <x>: the stock parser stores "TO" instead of the fix.
+    for name, tabs in (("CPDLC PROCEED DIRECT ident (ATC uplink page)", 6), ("CPDLC PROCEED DIRECT ident (CMU message page)", 5)):
+        old = _block(reference_lines, t * tabs + 'if word_txt[2] == "DIRECT" and word_txt[3] == "TO" then', 3, name)
+        assert old[2] == t * (tabs + 2) + "atc_proc_dir = word_txt[3]", old
+        new = [old[0], old[1], t * (tabs + 2) + "atc_proc_dir = word_txt[4]\t-- CPDLC PATCH: the fix follows DIRECT TO"]
+        replacements.append({"name": name, "oldLines": old, "newLines": new})
+
+    # 8. LSK / PREV / NEXT hooks: first statement of every FMC1 key handler.
+    for key in ("1L", "2L", "3L", "4L", "5L", "6L", "1R", "2R", "3R", "4R", "5R", "6R"):
+        header = f"function B738_fmc1_{key}_CMDhandler(phase, duration)"
+        probe = _block(reference_lines, header, 6, f"hook {key}")
+        assert probe[1] == t + "if phase == 0 and fmc1_input_lag == 1 then", probe
+        key_index = next(i for i, line in enumerate(probe) if line == t * 2 + "B738DR_fms_key = 1")
+        old = probe[: key_index + 1]
+        new = old + [t * 2 + f'if cpdlc_patch_lsk("{key}") then fmc1_input_lag = 0 return end\t-- CPDLC PATCH']
+        replacements.append({"name": f"CPDLC key hook {key}", "oldLines": old, "newLines": new})
+
+    # 9. Display chain: overlay after the stock datalink pages.
+    old = _block(reference_lines, t + "elseif page_dl_cpdlc_req_ver > 0 then", 5, "display hook")
+    assert old[1] == t * 2 + "dl_cpdlc_req_ver()" and old[2] == t + "end" and old[4] == t + "act_page = act_page_buf", old
+    new = [old[0], old[1], old[2], t + "cpdlc_patch_overlay()\t-- CPDLC PATCH", old[3], old[4]]
+    replacements.append({"name": "CPDLC display overlay hook", "oldLines": old, "newLines": new})
+
+    # 10. dlnk_in_use: patch pages count as datalink in use.
+    old = _block(reference_lines, t * 2 + "dlnk_in_use = dlnk_in_use + page_dl_cpdlc_message + page_dl_cpdlc_unable", 1, "dlnk_in_use hook")
+    new = old + [t * 2 + "dlnk_in_use = dlnk_in_use + cpdlc_patch_in_use()\t-- CPDLC PATCH"]
+    replacements.append({"name": "CPDLC dlnk_in_use hook", "oldLines": old, "newLines": new})
+
+    # 11. Module insertion before the captain display function.
+    module = (Path(__file__).resolve().parents[1] / "src/cpdlc_patch_module.lua").read_text(encoding="utf-8").splitlines()
+    old = _block(reference_lines, "function B738_fmc_disp_capt()", 1, "module anchor")
+    replacements.append({"name": "CPDLC FANS pages module", "oldLines": old, "newLines": module + [""] + old})
+
     return {"format": "exact-text-replacements-v1", "replacements": replacements}
 
 

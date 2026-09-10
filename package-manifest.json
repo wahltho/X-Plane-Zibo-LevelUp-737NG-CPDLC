@@ -8,15 +8,15 @@
     {
       "conflictsWith": [],
       "defaultEnabled": false,
-      "description": "CPDLC/ACARS correctness fixes for the stock FMS datalink pages: response attribute default, STANDBY status, no automatic abort of unanswered uplinks, ATC prompt on the datalink menu.",
-      "displayName": "CPDLC FIXES",
+      "description": "FANS 1/A CPDLC pages and fixes for the stock FMS datalink: DO-258A request texts, WHEN CAN WE, REPORT, POSITION REPORT, EMERGENCY, VOICE, loadable DIRECT TO clearances, STANDBY and response-attribute fixes.",
+      "displayName": "CPDLC FANS PAGES",
       "installationOrder": 60,
       "moduleId": "cpdlc",
       "payloads": [
         {
           "path": "patches/B738.a_fms.lua.json",
-          "sha256": "31a0e7f4c080b4b7a95a88b403238edb380ca779d5a30cbe2267d564931b1ae4",
-          "size": 4975
+          "sha256": "644bfe469a4629a2d43dcfa0d4f1c4500cff3208a2e8e129c3c484c77925bb13",
+          "size": 70640
         }
       ],
       "policy": "optional",
@@ -33,12 +33,12 @@
   ],
   "packageId": "wahltho.zibo-40535.cpdlc",
   "packageType": "compatibilityPackage",
-  "packageVersion": "0.1.0",
+  "packageVersion": "1.0.0",
   "payloads": [
     {
       "path": "patches/B738.a_fms.lua.json",
-      "sha256": "31a0e7f4c080b4b7a95a88b403238edb380ca779d5a30cbe2267d564931b1ae4",
-      "size": 4975
+      "sha256": "644bfe469a4629a2d43dcfa0d4f1c4500cff3208a2e8e129c3c484c77925bb13",
+      "size": 70640
     }
   ],
   "repositoryUrl": "https://github.com/wahltho/X-Plane-Zibo-LevelUp-737NG-CPDLC",
@@ -47,16 +47,19 @@
   "scope": {
     "included": [
       "unknown or empty CPDLC response attribute means no response required (was: response required)",
-      "STANDBY is kept as the message status until the final response",
-      "STANDBY stays selectable on the CMU message page until it has been sent",
+      "STANDBY is kept as the message status until the final response and stays selectable until sent",
       "no automatic ABORTED status for unanswered ATC uplinks; unanswered crew requests still expire",
       "ATC prompt on the DLNK-APPLICATION MENU when CPDLC is FANS (CDU without ATC key)",
+      "Boeing FANS ATC INDEX layout: EMERGENCY, POS REPORT, REQUEST, WHEN CAN WE, REPORT, FREE TEXT, LOG, LOGON/STATUS, VOICE",
+      "new pages WHEN CAN WE, REPORT, POSITION REPORT, EMERGENCY, VOICE with a shared VERIFY/SEND page (DO-258A downlink texts)",
+      "CMU request page 2 with BLOCK, HEADING, OFFSET, WEATHER DEVIATION and AT PILOTS DISCRETION; DO-258A request texts (CLIMB TO / DESCENT TO / KT / M.xx)",
+      "the same pages reachable from the DLK ATC MENU and the CPDLC REPORTS/REQUESTS menu",
+      "loadable PROCEED DIRECT TO clearances on the CMU/DLK message page (=LOAD / LOAD>), fixed ident parsing and armed intercept course for the stock LOAD",
       "known baseline reporting plus structural validation of every owned patch block"
     ],
     "notIncluded": [
-      "new CPDLC pages (WHEN CAN WE, REPORT, EMERGENCY, VOICE, POSITION REPORT) and DO-258A request texts",
-      "loadable DIRECT TO clearances",
-      "changes to the Hoppie transport, the tablet or zibomod.xpl",
+      "changes to the Hoppie transport plugin, the tablet or zibomod.xpl",
+      "ATN B1 message-set restriction: every CMU/DLK layout gets the full page set",
       "complete Zibo, LevelUp or X-Plane aircraft files"
     ]
   },
@@ -66,7 +69,7 @@
       "files": [
         {
           "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
-          "resultSha256": "1c37e88b69162ab0d747541ba287dc8327a7de097c9d6c15d61c73ee10857f03",
+          "resultSha256": "35e7641e56ce0bcbb29673bf83583ea1052252bfd98539d031a1177d7d876149",
           "sourceSha256": "ff313b0e88c62845ad1c4a2b1f4bd599f57d8799e8d6707bfc10a3369fd63a8e"
         }
       ],
@@ -78,7 +81,7 @@
       "files": [
         {
           "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
-          "resultSha256": "c70b28fe874f600680c7d79ceace5091025f5dd7a406670e986ea0f387ded5a9",
+          "resultSha256": "b45b173bff71ef535d244014cff1f4871553b02c2721ac746c12bf96a82377ae",
           "sourceSha256": "757057120c2953a9cdefbfebcd593bdb4fd9636721328fb1ce6d6550f8f49384"
         }
       ],
