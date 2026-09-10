@@ -26,7 +26,8 @@ Hoppie transport plugin -> hoppiebridge/poll_message_*
 ```
 
 All 22 replacements are owned by `B738.a_fms.lua`: five behavior fixes, two
-`PROCEED DIRECT TO` parser fixes, 14 one-line key hooks (12 LSKs, PREV, NEXT),
+`PROCEED DIRECT TO` parser fixes, 12 one-line LSK hooks (PREV/NEXT need none: the
+pages set `max_page_buf`),
 the display overlay hook, the `dlnk_in_use` hook and the page module
 (`src/cpdlc_patch_module.lua`, inserted before `B738_fmc_disp_capt()`). Every
 old block occurs exactly once in both baselines; the generator in

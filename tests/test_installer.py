@@ -210,7 +210,7 @@ class InstallerIntegrationTests(unittest.TestCase):
                 self.assertEqual(1, fms.count("if atc_msg_rsp[ggg] ~= 0 and atc_msg_rcv_snd[ggg] == 1 then"))
                 self.assertEqual(1, fms.count('line2_l = "<ATC            AOC STD>"'))
                 self.assertEqual(1, fms.count("if atc_msg_status[in_msg] ~= 3 then"))
-                self.assertEqual(14, fms.count('if cpdlc_patch_lsk("'))
+                self.assertEqual(12, fms.count('if cpdlc_patch_lsk("'))
                 self.assertEqual(2, fms.count("atc_proc_dir = word_txt[4]\t-- CPDLC PATCH: the fix follows DIRECT TO"))
                 self.assertEqual(1, fms.count("function cpdlc_patch_load_direct()"))
 
