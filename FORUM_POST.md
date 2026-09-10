@@ -69,12 +69,14 @@ followed by EXEC.
 
 **LevelUp users: FANS CDU**
 
-LevelUp already ships the FANS CDU with the ATC key; the separate FANS CDU
-patch exposes it on the tablet (`MCDU / FANS MCDU`) with switchable 3D key
-labels and, since v0.1.6, lets you choose the CPDLC protocol
-(`NONE / ATN B1 / FANS`) independently of the CDU type. With it, the ATC key
-opens the ATC INDEX directly. It is optional for this patch: with the standard
-CDU you reach the same pages via MENU, DLK, ATC.
+The separate FANS CDU patch is what makes the FANS CDU usable on the LevelUp
+in the first place: it adds the tablet selector `MCDU / FANS MCDU`, remaps
+the CDU keys to the FANS layout with the `ATC`, `VNAV` and `FMC COMM` keys,
+switches the 3D key labels on both CDUs (day, lit and normal textures), and
+since v0.1.6 lets you choose the CPDLC protocol (`NONE / ATN B1 / FANS`)
+independently of the CDU type. With it, the ATC key opens the ATC INDEX
+directly. It is optional for this patch: with the standard CDU you reach the
+same pages via MENU, DLK, ATC.
 
 - GitHub: https://github.com/wahltho/X-Plane-LevelUp-737NG-FANS-CDU (release v0.1.6)
 - Maintenance Toolkit: catalog module `LevelUp FANS CDU`
