@@ -67,6 +67,18 @@ followed by EXEC.
   `CPDLC FANS PAGES`. Enable it in the Toolkit; it installs, verifies and
   removes the patch through the same structural checks.
 
+**LevelUp users: FANS CDU**
+
+LevelUp already ships the FANS CDU with the ATC key; the separate FANS CDU
+patch exposes it on the tablet (`MCDU / FANS MCDU`) with switchable 3D key
+labels and, since v0.1.6, lets you choose the CPDLC protocol
+(`NONE / ATN B1 / FANS`) independently of the CDU type. With it, the ATC key
+opens the ATC INDEX directly. It is optional for this patch: with the standard
+CDU you reach the same pages via MENU, DLK, ATC.
+
+- GitHub: https://github.com/wahltho/X-Plane-LevelUp-737NG-FANS-CDU (release v0.1.6)
+- Maintenance Toolkit: catalog module `LevelUp FANS CDU`
+
 Supported: Zibo 4.05.35 and LevelUp V2.S1.50 for X-Plane 12. LevelUp V2.S1
 has no CPDLC code and is not supported. Other revisions install only when
 every owned block still matches exactly.
