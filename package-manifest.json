@@ -1,0 +1,101 @@
+{
+  "aircraftFamilies": [
+    "Zibo B737-800X for X-Plane 12",
+    "LevelUp 737NG Series for X-Plane 12"
+  ],
+  "aircraftFamily": "Zibo and LevelUp 737NG aircraft",
+  "modules": [
+    {
+      "conflictsWith": [],
+      "defaultEnabled": false,
+      "description": "CPDLC/ACARS correctness fixes for the stock FMS datalink pages: response attribute default, STANDBY status, no automatic abort of unanswered uplinks, ATC prompt on the datalink menu.",
+      "displayName": "CPDLC FIXES",
+      "installationOrder": 60,
+      "moduleId": "cpdlc",
+      "payloads": [
+        {
+          "path": "patches/B738.a_fms.lua.json",
+          "sha256": "31a0e7f4c080b4b7a95a88b403238edb380ca779d5a30cbe2267d564931b1ae4",
+          "size": 4975
+        }
+      ],
+      "policy": "optional",
+      "requires": [],
+      "targets": [
+        {
+          "operation": "exact-text-replacements-v1",
+          "payload": "patches/B738.a_fms.lua.json",
+          "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+          "sourceSha256": []
+        }
+      ]
+    }
+  ],
+  "packageId": "wahltho.zibo-40535.cpdlc",
+  "packageType": "compatibilityPackage",
+  "packageVersion": "0.1.0",
+  "payloads": [
+    {
+      "path": "patches/B738.a_fms.lua.json",
+      "sha256": "31a0e7f4c080b4b7a95a88b403238edb380ca779d5a30cbe2267d564931b1ae4",
+      "size": 4975
+    }
+  ],
+  "repositoryUrl": "https://github.com/wahltho/X-Plane-Zibo-LevelUp-737NG-CPDLC",
+  "restartRequired": true,
+  "schemaVersion": 3,
+  "scope": {
+    "included": [
+      "unknown or empty CPDLC response attribute means no response required (was: response required)",
+      "STANDBY is kept as the message status until the final response",
+      "STANDBY stays selectable on the CMU message page until it has been sent",
+      "no automatic ABORTED status for unanswered ATC uplinks; unanswered crew requests still expire",
+      "ATC prompt on the DLNK-APPLICATION MENU when CPDLC is FANS (CDU without ATC key)",
+      "known baseline reporting plus structural validation of every owned patch block"
+    ],
+    "notIncluded": [
+      "new CPDLC pages (WHEN CAN WE, REPORT, EMERGENCY, VOICE, POSITION REPORT) and DO-258A request texts",
+      "loadable DIRECT TO clearances",
+      "changes to the Hoppie transport, the tablet or zibomod.xpl",
+      "complete Zibo, LevelUp or X-Plane aircraft files"
+    ]
+  },
+  "supportedBaselines": [
+    {
+      "aircraftFamily": "Zibo B737-800X",
+      "files": [
+        {
+          "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+          "resultSha256": "1c37e88b69162ab0d747541ba287dc8327a7de097c9d6c15d61c73ee10857f03",
+          "sourceSha256": "ff313b0e88c62845ad1c4a2b1f4bd599f57d8799e8d6707bfc10a3369fd63a8e"
+        }
+      ],
+      "id": "zibo-4.05.35",
+      "release": "4.05.35"
+    },
+    {
+      "aircraftFamily": "LevelUp 737NG Series",
+      "files": [
+        {
+          "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+          "resultSha256": "c70b28fe874f600680c7d79ceace5091025f5dd7a406670e986ea0f387ded5a9",
+          "sourceSha256": "757057120c2953a9cdefbfebcd593bdb4fd9636721328fb1ce6d6550f8f49384"
+        }
+      ],
+      "id": "levelup-v2.s1.50",
+      "release": "V2.S1.50"
+    }
+  ],
+  "supportedProducts": [
+    "zibo-737ng",
+    "levelup-737ng"
+  ],
+  "supportedUpstreamReleases": [],
+  "targets": [
+    {
+      "operation": "exact-text-replacements-v1",
+      "payload": "patches/B738.a_fms.lua.json",
+      "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
+    }
+  ]
+}

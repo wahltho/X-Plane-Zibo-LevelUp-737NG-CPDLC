@@ -1,0 +1,120 @@
+{
+  "format": "exact-text-replacements-v1",
+  "replacements": [
+    {
+      "name": "CPDLC response attribute default",
+      "newLines": [
+        "\t\t\t\t\t\t\tif msg_val == \"N\" or msg_val == \"NE\" then",
+        "\t\t\t\t\t\t\t\tatc_msg_rsp_tmp = 0",
+        "\t\t\t\t\t\t\telseif msg_val == \"AN\" then",
+        "\t\t\t\t\t\t\t\tatc_msg_rsp_tmp = 1",
+        "\t\t\t\t\t\t\telseif msg_val == \"WU\" then",
+        "\t\t\t\t\t\t\t\tatc_msg_rsp_tmp = 2",
+        "\t\t\t\t\t\t\telseif msg_val == \"R\" or msg_val == \"RU\" then",
+        "\t\t\t\t\t\t\t\tatc_msg_rsp_tmp = 3",
+        "\t\t\t\t\t\t\telseif msg_val == \"Y\" then",
+        "\t\t\t\t\t\t\t\tatc_msg_rsp_tmp = 4",
+        "\t\t\t\t\t\t\telse",
+        "\t\t\t\t\t\t\t\t-- CPDLC PATCH: unknown or empty response attribute = no response required",
+        "\t\t\t\t\t\t\t\tatc_msg_rsp_tmp = 0",
+        "\t\t\t\t\t\t\tend"
+      ],
+      "oldLines": [
+        "\t\t\t\t\t\t\tif msg_val == \"N\" or msg_val == \"NE\" then",
+        "\t\t\t\t\t\t\t\tatc_msg_rsp_tmp = 0",
+        "\t\t\t\t\t\t\telseif msg_val == \"AN\" then",
+        "\t\t\t\t\t\t\t\tatc_msg_rsp_tmp = 1",
+        "\t\t\t\t\t\t\telseif msg_val == \"WU\" then",
+        "\t\t\t\t\t\t\t\tatc_msg_rsp_tmp = 2",
+        "\t\t\t\t\t\t\telseif msg_val == \"R\" or msg_val == \"RU\" then",
+        "\t\t\t\t\t\t\t\tatc_msg_rsp_tmp = 3",
+        "\t\t\t\t\t\t\telse",
+        "\t\t\t\t\t\t\t\tatc_msg_rsp_tmp = 4",
+        "\t\t\t\t\t\t\tend"
+      ]
+    },
+    {
+      "name": "CPDLC STANDBY status persistence",
+      "newLines": [
+        "\telseif atc_resp_state == 2 then",
+        "\t\tatc_resp_state_timer = atc_resp_state_timer - SIM_PERIOD",
+        "\t\tif atc_resp_state_timer <= 0 then",
+        "\t\t\tatc_resp_state_timer = 0",
+        "\t\t\tatc_resp_state = 0",
+        "\t\t\tif atc_resp_state_idx ~= 0 and atc_resp_state_idx <= atc_msg_n then",
+        "\t\t\t\tatc_msg_txt[atc_resp_state_idx] = atc_resp_state_msg",
+        "\t\t\t\t-- CPDLC PATCH: STANDBY is an intermediate status until the final response",
+        "\t\t\t\tatc_msg_status[atc_resp_state_idx] = atc_resp_state_status",
+        "\t\t\tend",
+        "\t\t\tatc_resp_state_idx = 0",
+        "\t\tend"
+      ],
+      "oldLines": [
+        "\telseif atc_resp_state == 2 then",
+        "\t\tatc_resp_state_timer = atc_resp_state_timer - SIM_PERIOD",
+        "\t\tif atc_resp_state_timer <= 0 then",
+        "\t\t\tatc_resp_state_timer = 0",
+        "\t\t\tatc_resp_state = 0",
+        "\t\t\tif atc_resp_state_idx ~= 0 and atc_resp_state_idx <= atc_msg_n then",
+        "\t\t\t\tatc_msg_txt[atc_resp_state_idx] = atc_resp_state_msg",
+        "\t\t\tend",
+        "\t\t\tatc_resp_state_idx = 0",
+        "\t\tend"
+      ]
+    },
+    {
+      "name": "CPDLC STANDBY prompt gate",
+      "newLines": [
+        "\t\t\t\t\t-- CPDLC PATCH: STANDBY stays available until it has been sent (status 3)",
+        "\t\t\t\t\tif atc_msg_status[in_msg] ~= 3 then",
+        "\t\t\t\t\t\tline5_l = \"=PRINT          STANDBY=\""
+      ],
+      "oldLines": [
+        "\t\t\t\t\tif atc_msg_status[in_msg] ~= 2 then",
+        "\t\t\t\t\t\tline5_l = \"=PRINT          STANDBY=\""
+      ]
+    },
+    {
+      "name": "CPDLC uplink abort timer",
+      "newLines": [
+        "\t\t\t\t\t-- CPDLC PATCH: FANS has no automatic abort of an unanswered uplink;",
+        "\t\t\t\t\t-- only a crew request that ATC never answered expires.",
+        "\t\t\t\t\tif atc_msg_rsp[ggg] ~= 0 and atc_msg_rcv_snd[ggg] == 1 then",
+        "\t\t\t\t\t\tif atc_msg_status[ggg] == 2 then",
+        "\t\t\t\t\t\t\tatc_msg_status[ggg] = 6\t\t--\"ABORTED\"",
+        "\t\t\t\t\t\tend",
+        "\t\t\t\t\tend"
+      ],
+      "oldLines": [
+        "\t\t\t\t\tif atc_msg_rsp[ggg] ~= 0 then",
+        "\t\t\t\t\t\tif atc_msg_status[ggg] == 0 or atc_msg_status[ggg] == 2 or atc_msg_status[ggg] == 3 then",
+        "\t\t\t\t\t\t\tatc_msg_status[ggg] = 6\t\t--\"ABORTED\"",
+        "\t\t\t\t\t\tend",
+        "\t\t\t\t\tend"
+      ]
+    },
+    {
+      "name": "CPDLC datalink menu ATC prompt",
+      "newLines": [
+        "\tif B738DR_cpdlc == 2 then",
+        "\t\t-- CPDLC PATCH: reach the ATC pages without an ATC key",
+        "\t\tline0_l = \" DLNK-APPLICATION MENU  \"",
+        "\t\tline2_l = \"<ATC            AOC STD>\"",
+        "\t\tline3_l = \"                    ATS>\"",
+        "\t\tline4_l = \"              TECHNICAL>\"",
+        "\telseif B738DR_cpdlc == 0 then",
+        "\t\tline0_l = \" DLNK-APPLICATION MENU  \"",
+        "\t\tline2_l = \"                AOC STD>\"",
+        "\t\tline3_l = \"                    ATS>\"",
+        "\t\tline4_l = \"              TECHNICAL>\""
+      ],
+      "oldLines": [
+        "\tif B738DR_cpdlc == 0 or B738DR_cpdlc == 2 then",
+        "\t\tline0_l = \" DLNK-APPLICATION MENU  \"",
+        "\t\tline2_l = \"                AOC STD>\"",
+        "\t\tline3_l = \"                    ATS>\"",
+        "\t\tline4_l = \"              TECHNICAL>\""
+      ]
+    }
+  ]
+}
