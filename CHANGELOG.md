@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.0
+
+- AOC MISC MENU free-text page with explicit Hoppie station, four message
+  lines, VERIFY and direct `telex` transmission independent of ATC logon.
+- Additive marked module so Maintenance Toolkit updates preserve other
+  structurally managed changes in `B738.a_fms.lua`.
+- Standalone installer supports direct transactional updates from 1.1.0 to
+  1.2.0 while retaining idempotent verify and uninstall behavior.
+
 ## 1.1.0
 
 - Toolkit-compatible package layout: the 14 insertions (12 LSK hooks, the

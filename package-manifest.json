@@ -8,7 +8,7 @@
     {
       "conflictsWith": [],
       "defaultEnabled": false,
-      "description": "FANS 1/A CPDLC pages and fixes for the stock FMS datalink: DO-258A request texts, WHEN CAN WE, REPORT, POSITION REPORT, EMERGENCY, VOICE, loadable DIRECT TO clearances, STANDBY and response-attribute fixes.",
+      "description": "FANS 1/A CPDLC pages and fixes for the stock FMS datalink, including AOC free text to an explicit Hoppie station.",
       "displayName": "CPDLC FANS PAGES",
       "installationOrder": 60,
       "moduleId": "cpdlc",
@@ -87,6 +87,11 @@
           "path": "patches/B738.a_fms.lua.module.json",
           "sha256": "197d21e6637dabbda0771782b47a45a8acc935d9fe5df47003573a0729ecf961",
           "size": 104789
+        },
+        {
+          "path": "patches/B738.a_fms.lua.aoc-free-text-module.json",
+          "sha256": "3b95450f0b0bf650674385c36029d9752fc4218faab3330c54992a1553f36b30",
+          "size": 7767
         }
       ],
       "policy": "optional",
@@ -181,13 +186,19 @@
           "payload": "patches/B738.a_fms.lua.module.json",
           "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
           "sourceSha256": []
+        },
+        {
+          "operation": "insert-marked-block-v1",
+          "payload": "patches/B738.a_fms.lua.aoc-free-text-module.json",
+          "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+          "sourceSha256": []
         }
       ]
     }
   ],
   "packageId": "wahltho.zibo-40535.cpdlc",
   "packageType": "compatibilityPackage",
-  "packageVersion": "1.1.0",
+  "packageVersion": "1.2.0",
   "payloads": [
     {
       "path": "patches/B738.a_fms.lua.json",
@@ -263,6 +274,11 @@
       "path": "patches/B738.a_fms.lua.module.json",
       "sha256": "197d21e6637dabbda0771782b47a45a8acc935d9fe5df47003573a0729ecf961",
       "size": 104789
+    },
+    {
+      "path": "patches/B738.a_fms.lua.aoc-free-text-module.json",
+      "sha256": "3b95450f0b0bf650674385c36029d9752fc4218faab3330c54992a1553f36b30",
+      "size": 7767
     }
   ],
   "repositoryUrl": "https://github.com/wahltho/X-Plane-Zibo-LevelUp-737NG-CPDLC",
@@ -279,6 +295,7 @@
       "CMU request page 2 with BLOCK, HEADING, OFFSET, WEATHER DEVIATION and AT PILOTS DISCRETION; DO-258A request texts (CLIMB TO / DESCENT TO / KT / M.xx)",
       "the same pages reachable from the DLK ATC MENU and the CPDLC REPORTS/REQUESTS menu",
       "loadable PROCEED DIRECT TO clearances on the CMU/DLK message page (=LOAD / LOAD>), fixed ident parsing and armed intercept course for the stock LOAD",
+      "AOC free text with explicit Hoppie station, four message lines, VERIFY and direct telex transmission independent of ATC logon",
       "known baseline reporting plus structural validation of every owned patch block"
     ],
     "notIncluded": [
@@ -293,7 +310,7 @@
       "files": [
         {
           "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
-          "resultSha256": "ef0b9f484e5432f892679ce3d08ddea677429ab4121fc6f3fc8e84383fb9b91d",
+          "resultSha256": "90ed4652b55996a26fe8d3c13fb8e451a5ad35eb991b11f9081eb941d69d0a48",
           "sourceSha256": "ff313b0e88c62845ad1c4a2b1f4bd599f57d8799e8d6707bfc10a3369fd63a8e"
         }
       ],
@@ -305,7 +322,7 @@
       "files": [
         {
           "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
-          "resultSha256": "61cf2fa427e3ee1e9b8afc4ad730959657cb354644e926bc3adfaab6bd76ffc3",
+          "resultSha256": "885240e36e1ed7cee8564b51f6309fb93ae0410bf2bd451012f088216fec2266",
           "sourceSha256": "757057120c2953a9cdefbfebcd593bdb4fd9636721328fb1ce6d6550f8f49384"
         }
       ],
@@ -392,6 +409,11 @@
     {
       "operation": "insert-marked-block-v1",
       "payload": "patches/B738.a_fms.lua.module.json",
+      "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
+    },
+    {
+      "operation": "insert-marked-block-v1",
+      "payload": "patches/B738.a_fms.lua.aoc-free-text-module.json",
       "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
     }
   ]

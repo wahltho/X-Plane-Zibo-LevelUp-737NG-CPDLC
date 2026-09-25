@@ -17,7 +17,7 @@ class PackageContractTests(unittest.TestCase):
         )
         self.assertEqual(3, manifest["schemaVersion"])
         self.assertEqual("compatibilityPackage", manifest["packageType"])
-        self.assertEqual("1.1.0", manifest["packageVersion"])
+        self.assertEqual("1.2.0", manifest["packageVersion"])
         self.assertEqual(
             ["zibo-737ng", "levelup-737ng"],
             manifest["supportedProducts"],
@@ -25,7 +25,7 @@ class PackageContractTests(unittest.TestCase):
         payloads = {item["path"]: item for item in manifest["payloads"]}
         targets = manifest["targets"]
         self.assertEqual(set(payloads), {target["payload"] for target in targets})
-        self.assertEqual(15, len(targets))
+        self.assertEqual(16, len(targets))
         self.assertEqual("exact-text-replacements-v1", targets[0]["operation"])
         self.assertTrue(all(target["operation"] == "insert-marked-block-v1" for target in targets[1:]))
         self.assertEqual(1, len({target["relativePath"] for target in targets}))

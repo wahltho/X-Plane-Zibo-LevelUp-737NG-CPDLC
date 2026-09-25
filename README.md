@@ -47,6 +47,9 @@ contain complete Zibo, LevelUp or X-Plane aircraft files and does not modify
 - Loadable clearance on the CMU/DLK message page: `=LOAD` (CMU, LSK 5L) or
   `LOAD>` (DLK, LSK 4R) for a `PROCEED DIRECT TO` uplink loads the direct-to
   into the active route as a LEGS 1L entry would; then EXEC and WILCO.
+- AOC MISC MENU `FREE TEXT>` opens a four-line message editor with an explicit
+  Hoppie station, a VERIFY step and direct `telex` transmission. This path is
+  independent of the active ATC logon.
 
 The pages are available with any CMU layout (CPDLC `ATN B1` or `FANS`) as
 soon as a CPDLC logon is established. The Hoppie transport, the tablet
@@ -79,9 +82,18 @@ The package is Toolkit-compatible (`compatibilityPackage`, manifest schema 3)
 and is listed in the X-Plane 737NG Maintenance Toolkit catalog as the optional
 module `CPDLC FANS PAGES`.
 
+## Updating
+
+Standalone installations of 1.1.0 update directly by running `install` from
+the 1.2.0 package. The installer validates the existing owned blocks, adds the
+separate AOC free-text module transactionally and retains the original
+uninstall contract. Maintenance Toolkit installations update normally through
+the Toolkit; the additive marked block preserves other structurally managed
+patches in the same FMS Lua file.
+
 ## Upgrading from 1.0.0
 
-Run `install` from the 1.1.0 package: the standalone installer replaces the
+Run `install` from the current package: the standalone installer replaces the
 unmarked 1.0.0 hook lines by marked blocks and the result equals a fresh
 installation. When installing through the Maintenance Toolkit over a file that
 still carries a 1.0.0 standalone installation, uninstall 1.0.0 with its own

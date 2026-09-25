@@ -14,7 +14,9 @@ from unittest.mock import patch
 
 from patchlib import (
     PatchError,
+    apply_operation,
     apply_exact_text_replacements,
+    load_json,
     remove_exact_text_replacements,
 )
 
@@ -36,6 +38,8 @@ CPDLC_MARKERS = (
     "-- CPDLC PATCH: reach the ATC pages without an ATC key",
     "-- BEGIN CPDLC PATCH MODULE",
     "-- END CPDLC PATCH MODULE",
+    "-- BEGIN CPDLC PATCH AOC FREE TEXT MODULE",
+    "-- END CPDLC PATCH AOC FREE TEXT MODULE",
     "\tcpdlc_patch_overlay()\t-- CPDLC PATCH",
     "-- BEGIN CPDLC PATCH HOOK DLNK",
     "if cpdlc_patch_page ~= 0 and dlnk_in_use == 0 then dlnk_in_use = 1 end",
@@ -197,7 +201,7 @@ class InstallerIntegrationTests(unittest.TestCase):
                     )
                 )
                 self.assertEqual("wahltho.zibo-40535.cpdlc", state["packageId"])
-                self.assertEqual("1.1.0", state["packageVersion"])
+                self.assertEqual("1.2.0", state["packageVersion"])
                 self.assertEqual(identifier, state["baselineId"])
                 self.assertEqual(1, len(state["files"]))
 
@@ -218,6 +222,13 @@ class InstallerIntegrationTests(unittest.TestCase):
                 self.assertEqual(0, fms.count("-- CPDLC PATCH\n") + fms.count("-- CPDLC PATCH\r\n") - 1)
                 self.assertEqual(2, fms.count("atc_proc_dir = word_txt[4]\t-- CPDLC PATCH: the fix follows DIRECT TO"))
                 self.assertEqual(1, fms.count("function cpdlc_patch_load_direct()"))
+                self.assertEqual(1, fms.count("function cpdlc_patch_aoc_message()"))
+                self.assertEqual(
+                    1,
+                    fms.count(
+                        "send_telex(cpdlc_patch_aoc_message(), cpdlc_patch_aoc_target)"
+                    ),
+                )
 
                 luac = find_lua51_compiler()
                 if luac:
@@ -275,6 +286,65 @@ class InstallerIntegrationTests(unittest.TestCase):
                 self.run_installer(aircraft_root, "uninstall")
                 self.assertEqual(original_hashes[TARGETS[0]], sha256(fms))
 
+    def test_v110_standalone_installation_updates_to_v120(self) -> None:
+        manifest = json.loads(
+            (REPOSITORY_ROOT / "package-manifest.json").read_text(encoding="utf-8")
+        )
+        previous_targets = [
+            target
+            for target in manifest["targets"]
+            if target["payload"] != "patches/B738.a_fms.lua.aoc-free-text-module.json"
+        ]
+        for identifier, upstream, name, _, _ in self.baselines:
+            with self.subTest(baseline=identifier), tempfile.TemporaryDirectory(
+                prefix="cpdlc-v110-"
+            ) as temporary:
+                aircraft_root = Path(temporary) / name
+                original_hashes = self.copy_baseline(upstream, aircraft_root)
+                fms = aircraft_root / TARGETS[0]
+                installed = fms.read_bytes()
+                for target in previous_targets:
+                    payload = load_json(REPOSITORY_ROOT / target["payload"])
+                    installed = apply_operation(installed, target["operation"], payload)
+                fms.write_bytes(installed)
+
+                state_root = aircraft_root / ".zibo-cpdlc-patch"
+                state_root.mkdir()
+                (state_root / "state.json").write_text(
+                    json.dumps(
+                        {
+                            "schemaVersion": 1,
+                            "packageId": manifest["packageId"],
+                            "packageVersion": "1.1.0",
+                            "manifestSha256": "0" * 64,
+                            "installedAtUtc": "2026-01-01T00:00:00+00:00",
+                            "files": [
+                                {
+                                    "relativePath": TARGETS[0],
+                                    "originalSha256": original_hashes[TARGETS[0]],
+                                    "installedSha256": hashlib.sha256(installed).hexdigest(),
+                                }
+                            ],
+                        },
+                        indent=2,
+                        sort_keys=True,
+                    )
+                    + "\n",
+                    encoding="utf-8",
+                )
+
+                check = self.run_installer(aircraft_root, "check")
+                self.assertIn("Ready to update", check.stdout)
+                update = self.run_installer(aircraft_root, "install")
+                self.assertIn("1.1.0 to 1.2.0", update.stdout)
+                self.run_installer(aircraft_root, "verify")
+                self.run_installer(aircraft_root, "install")
+                current = fms.read_text(encoding="utf-8")
+                self.assertEqual(1, current.count("-- BEGIN CPDLC PATCH MODULE"))
+                self.assertEqual(1, current.count("-- BEGIN CPDLC PATCH AOC FREE TEXT MODULE"))
+                self.run_installer(aircraft_root, "uninstall")
+                self.assertEqual(original_hashes[TARGETS[0]], sha256(fms))
+
     def test_unowned_source_change_is_preserved(self) -> None:
         for identifier, upstream, name, _, _ in self.baselines:
             with self.subTest(baseline=identifier), tempfile.TemporaryDirectory(
@@ -301,7 +371,7 @@ class InstallerIntegrationTests(unittest.TestCase):
                 self.run_installer(aircraft_root, "uninstall")
                 self.assertTrue(tablet.read_bytes().endswith(unrelated))
 
-    def test_state_without_baseline_keys_remains_verifiable_and_uninstallable(self) -> None:
+    def test_older_state_without_baseline_keys_updates_and_remains_uninstallable(self) -> None:
         identifier, upstream, name, _, _ = self.baselines[0]
         with tempfile.TemporaryDirectory(prefix="cpdlc-v010-") as temporary:
             aircraft_root = Path(temporary) / name
@@ -318,10 +388,11 @@ class InstallerIntegrationTests(unittest.TestCase):
                 json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8"
             )
 
-            verify = self.run_installer(aircraft_root, "verify")
-            self.assertIn("0.0.9", verify.stdout)
-            reinstall = self.run_installer(aircraft_root, "install")
-            self.assertIn("Already installed and verified", reinstall.stdout)
+            check = self.run_installer(aircraft_root, "check")
+            self.assertIn("Ready to update", check.stdout)
+            update = self.run_installer(aircraft_root, "install")
+            self.assertIn("0.0.9 to 1.2.0", update.stdout)
+            self.run_installer(aircraft_root, "verify")
             self.run_installer(aircraft_root, "uninstall")
             self.assertEqual(
                 original_hashes,

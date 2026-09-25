@@ -7,6 +7,10 @@
 4. Run `python3 z_Install.py install --aircraft-root "<aircraft root>"`.
 5. Start X-Plane.
 
+For an existing standalone 1.1.0 installation, run `check` and `install` from
+the unpacked 1.2.0 folder. Maintenance Toolkit installations are updated with
+the Toolkit's normal Update action.
+
 `verify` reports the installed state. `uninstall` restores the owned blocks
 and keeps unrelated local changes. A backup of the original file is stored in
 `.zibo-cpdlc-patch/backups/` inside the aircraft root.

@@ -163,6 +163,17 @@ def make_marked_blocks(reference_lines: list[str]) -> list[tuple[str, dict[str, 
         # 1.0.0 wrote the same block followed by a blank line (exact-text form).
         "legacyLines": module + [""],
     }))
+    aoc_module = (Path(__file__).resolve().parents[1] / "src/cpdlc_aoc_free_text_module.lua").read_text(encoding="utf-8").splitlines()
+    assert aoc_module[0] == "-- BEGIN CPDLC PATCH AOC FREE TEXT MODULE" and aoc_module[-1] == "-- END CPDLC PATCH AOC FREE TEXT MODULE", (aoc_module[0], aoc_module[-1])
+    blocks.append(("B738.a_fms.lua.aoc-free-text-module.json", {
+        "format": "insert-marked-block-v1",
+        "name": "CPDLC AOC free text module",
+        "beginMarker": aoc_module[0],
+        "endMarker": aoc_module[-1],
+        "anchorLines": _block(reference_lines, "function B738_fmc_disp_capt()", 1, "AOC module anchor"),
+        "position": "before",
+        "contentLines": aoc_module[1:-1],
+    }))
     return blocks
 
 

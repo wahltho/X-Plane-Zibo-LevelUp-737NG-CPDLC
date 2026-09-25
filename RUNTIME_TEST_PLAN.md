@@ -19,4 +19,6 @@ EuroScope CPDLC or the Hoppie web client), CMU enabled, CPDLC ATN B1 or FANS.
 | 12 | VOICE: `121.5` then REQUEST VOICE CONTACT | `REQUEST VOICE CONTACT 121.500`. |
 | 13 | CMU request: NEXT PAGE, enter `330/350` BLOCK, `270` HEADING, `5L` OFFSET, `10R` WX DEV, toggle PILOT DISC, VERIFY | Text `REQUEST BLOCK FL330 TO FL350. REQUEST HEADING 270. REQUEST OFFSET 5NM LEFT OF ROUTE. REQUEST WEATHER DEVIATION UP TO 10NM RIGHT OF ROUTE AT PILOTS DISCRETION`; SEND clears page 1 and page 2 fields. |
 | 14 | Controller sends `PROCEED DIRECT TO <fix in route>` in flight | CMU: `=LOAD` on 5L; DLK: `LOAD>` on 4R; LOAD arms a MOD with EXEC light and intercept course; after EXEC the prompt shows LOADED; WILCO closes the message. Fix not in route: UNLOADABLE CLEARANCE. |
-| 15 | Uninstall, repeat 1, 4 and 7 | Stock behavior and stock menus return. |
+| 15 | ACARS-AOC MENU, MISC MENU, FREE TEXT: enter an explicit Hoppie station and four text lines, VERIFY, SEND | The verify page shows the unchanged recipient and text; SEND transmits one `telex` without requiring an ATC logon. |
+| 16 | Repeat 15 with Hoppie transport unavailable | `NO COMM`; recipient and draft remain available for retry. |
+| 17 | Uninstall, repeat 1, 4, 7 and inspect AOC MISC MENU | Stock behavior and stock menus return; FREE TEXT is absent. |

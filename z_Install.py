@@ -108,6 +108,11 @@ def _load_state(aircraft_root: Path) -> dict[str, Any] | None:
     return load_json(path) if path.exists() else None
 
 
+def _validate_state_identity(state: dict[str, Any], manifest: dict[str, Any]) -> None:
+    if state.get("packageId") != manifest["packageId"]:
+        raise PatchError("Installed state belongs to a different package")
+
+
 def _target_path(aircraft_root: Path, target: dict[str, Any]) -> Path:
     return aircraft_root / _safe_relative_path(target["relativePath"])
 
@@ -218,8 +223,17 @@ def _verify_state(aircraft_root: Path, state: dict[str, Any], manifest: dict[str
 def command_check(aircraft_root: Path, manifest: dict[str, Any]) -> int:
     state = _load_state(aircraft_root)
     if state is not None:
-        _verify_state(aircraft_root, state, manifest)
-        print(f"Installed and verified: {state['packageId']} {state['packageVersion']}")
+        _validate_payloads(manifest)
+        _validate_state_identity(state, manifest)
+        if state.get("packageVersion") == manifest["packageVersion"]:
+            _verify_state(aircraft_root, state, manifest)
+            print(f"Installed and verified: {state['packageId']} {state['packageVersion']}")
+        else:
+            _transform_targets(aircraft_root, manifest, None)
+            print(
+                f"Ready to update {state['packageId']} {state.get('packageVersion', '<unknown>')} "
+                f"to {manifest['packageVersion']}"
+            )
         return 0
     _validate_payloads(manifest)
     baseline = _detect_baseline(aircraft_root, manifest)
@@ -239,9 +253,13 @@ def command_check(aircraft_root: Path, manifest: dict[str, Any]) -> int:
 def command_install(aircraft_root: Path, manifest: dict[str, Any]) -> int:
     state = _load_state(aircraft_root)
     if state is not None:
-        _verify_state(aircraft_root, state, manifest)
-        print(f"Already installed and verified: {state['packageId']} {state['packageVersion']}")
-        return 0
+        _validate_payloads(manifest)
+        _validate_state_identity(state, manifest)
+        if state.get("packageVersion") == manifest["packageVersion"]:
+            _verify_state(aircraft_root, state, manifest)
+            print(f"Already installed and verified: {state['packageId']} {state['packageVersion']}")
+            return 0
+        return _update_installation(aircraft_root, state, manifest)
 
     _validate_payloads(manifest)
     baseline = _detect_baseline(aircraft_root, manifest)
@@ -310,11 +328,69 @@ def command_install(aircraft_root: Path, manifest: dict[str, Any]) -> int:
     return 0
 
 
+def _update_installation(
+    aircraft_root: Path, state: dict[str, Any], manifest: dict[str, Any]
+) -> int:
+    transformed = _transform_targets(aircraft_root, manifest, None)
+    state_paths = {item["relativePath"] for item in state.get("files", [])}
+    target_paths = {target["relativePath"] for target in _unique_targets(manifest)}
+    if state_paths != target_paths:
+        raise PatchError("Installed state target set does not match the update package")
+
+    state_root = aircraft_root / STATE_DIRECTORY
+    previous_version = state.get("packageVersion", "<unknown>")
+    with tempfile.TemporaryDirectory(prefix="cpdlc-update-", dir=state_root) as name:
+        staging_root = Path(name)
+        staged: dict[str, Path] = {}
+        rollback: dict[str, Path] = {}
+        for relative in sorted(target_paths):
+            destination = aircraft_root / _safe_relative_path(relative)
+            temporary = staging_root / "updated" / _safe_relative_path(relative)
+            temporary.parent.mkdir(parents=True, exist_ok=True)
+            temporary.write_bytes(transformed[relative])
+            os.chmod(temporary, stat.S_IMODE(destination.stat().st_mode))
+            staged[relative] = temporary
+            rollback_file = staging_root / "installed" / _safe_relative_path(relative)
+            rollback_file.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(destination, rollback_file)
+            rollback[relative] = rollback_file
+
+        updated_state = json.loads(json.dumps(state))
+        updated_state["packageVersion"] = manifest["packageVersion"]
+        updated_state["manifestSha256"] = sha256_path(MANIFEST_PATH)
+        updated_state["installedAtUtc"] = datetime.now(timezone.utc).isoformat()
+        for item in updated_state["files"]:
+            item["installedSha256"] = sha256_bytes(transformed[item["relativePath"]])
+
+        try:
+            for relative in sorted(target_paths):
+                os.replace(staged[relative], aircraft_root / _safe_relative_path(relative))
+            _write_json_atomic(_state_path(aircraft_root), updated_state)
+        except Exception:
+            for relative in sorted(target_paths):
+                if rollback[relative].exists():
+                    shutil.copy2(rollback[relative], aircraft_root / _safe_relative_path(relative))
+            raise
+
+    _verify_state(aircraft_root, updated_state, manifest)
+    print(
+        f"Updated {manifest['packageId']} {previous_version} to {manifest['packageVersion']}."
+    )
+    print("Restart X-Plane before testing the aircraft.")
+    return 0
+
+
 def command_verify(aircraft_root: Path, manifest: dict[str, Any]) -> int:
     state = _load_state(aircraft_root)
     if state is None:
         raise PatchError("The CPDLC patch is not installed")
     _validate_payloads(manifest)
+    _validate_state_identity(state, manifest)
+    if state.get("packageVersion") != manifest["packageVersion"]:
+        raise PatchError(
+            f"Installed version is {state.get('packageVersion', '<unknown>')}; "
+            f"run install to update to {manifest['packageVersion']}"
+        )
     _verify_state(aircraft_root, state, manifest)
     print(f"Verified {state['packageId']} {state['packageVersion']} ({len(state['files'])} files).")
     return 0
@@ -324,7 +400,10 @@ def command_uninstall(aircraft_root: Path, manifest: dict[str, Any]) -> int:
     state = _load_state(aircraft_root)
     if state is None:
         raise PatchError("The CPDLC patch is not installed")
-    _verify_state(aircraft_root, state, manifest)
+    _validate_payloads(manifest)
+    _validate_state_identity(state, manifest)
+    if state.get("packageVersion") == manifest["packageVersion"]:
+        _verify_state(aircraft_root, state, manifest)
     transformed = _remove_targets(aircraft_root, manifest)
 
     state_root = aircraft_root / STATE_DIRECTORY
