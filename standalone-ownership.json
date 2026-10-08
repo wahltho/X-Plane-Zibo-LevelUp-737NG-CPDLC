@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "policy": {
+    "packageId": "wahltho.zibo-40535.cpdlc",
+    "displayName": "CPDLC FANS PAGES",
+    "repositoryUrl": "https://github.com/wahltho/X-Plane-Zibo-LevelUp-737NG-CPDLC",
+    "supportedProducts": [
+      "zibo-737ng",
+      "levelup-737ng"
+    ],
+    "moduleIds": [
+      "cpdlc"
+    ],
+    "targetPaths": [
+      "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua"
+    ],
+    "standaloneEvidencePaths": [
+      ".zibo-cpdlc-patch/state.json",
+      ".patch-ownership/wahltho.zibo-40535.cpdlc/receipt.json",
+      ".patch-ownership/wahltho.zibo-40535.cpdlc.lock",
+      ".patch-ownership/wahltho.zibo-40535.cpdlc/transaction"
+    ],
+    "payloadPaths": [],
+    "markerNamespaces": [
+      {
+        "relativePath": "plugins/xlua/scripts/B738.a_fms/B738.a_fms.lua",
+        "namespace": "CPDLC PATCH",
+        "blocks": [
+          {
+            "beginMarker": "-- BEGIN CPDLC PATCH AOC FREE TEXT MODULE",
+            "endMarker": "-- END CPDLC PATCH AOC FREE TEXT MODULE"
+          },
+          {
+            "beginMarker": "-- BEGIN CPDLC PATCH HOOK 1L",
+            "endMarker": "-- END CPDLC PATCH HOOK 1L"
+          },
+          {
+            "beginMarker": "-- BEGIN CPDLC PATCH HOOK 1R",
+            "endMarker": "-- END CPDLC PATCH HOOK 1R"
+          },
+          {
+            "beginMarker": "-- BEGIN CPDLC PATCH HOOK 2L",
+            "endMarker": "-- END CPDLC PATCH HOOK 2L"
+          },
+          {
+            "beginMarker": "-- BEGIN CPDLC PATCH HOOK 2R",
+            "endMarker": "-- END CPDLC PATCH HOOK 2R"
+          },
+          {
+            "beginMarker": "-- BEGIN CPDLC PATCH HOOK 3L",
+            "endMarker": "-- END CPDLC PATCH HOOK 3L"
+          },
+          {
+            "beginMarker": "-- BEGIN CPDLC PATCH HOOK 3R",
+            "endMarker": "-- END CPDLC PATCH HOOK 3R"
+          },
+          {
+            "beginMarker": "-- BEGIN CPDLC PATCH HOOK 4L",
+            "endMarker": "-- END CPDLC PATCH HOOK 4L"
+          },
+          {
+            "beginMarker": "-- BEGIN CPDLC PATCH HOOK 4R",
+            "endMarker": "-- END CPDLC PATCH HOOK 4R"
+          },
+          {
+            "beginMarker": "-- BEGIN CPDLC PATCH HOOK 5L",
+            "endMarker": "-- END CPDLC PATCH HOOK 5L"
+          },
+          {
+            "beginMarker": "-- BEGIN CPDLC PATCH HOOK 5R",
+            "endMarker": "-- END CPDLC PATCH HOOK 5R"
+          },
+          {
+            "beginMarker": "-- BEGIN CPDLC PATCH HOOK 6L",
+            "endMarker": "-- END CPDLC PATCH HOOK 6L"
+          },
+          {
+            "beginMarker": "-- BEGIN CPDLC PATCH HOOK 6R",
+            "endMarker": "-- END CPDLC PATCH HOOK 6R"
+          },
+          {
+            "beginMarker": "-- BEGIN CPDLC PATCH HOOK DLNK",
+            "endMarker": "-- END CPDLC PATCH HOOK DLNK"
+          },
+          {
+            "beginMarker": "-- BEGIN CPDLC PATCH MODULE",
+            "endMarker": "-- END CPDLC PATCH MODULE"
+          }
+        ],
+        "allowedCommentLines": [
+          "-- CPDLC PATCH",
+          "-- CPDLC PATCH: FANS has no automatic abort of an unanswered uplink;",
+          "-- CPDLC PATCH: STANDBY is an intermediate status until the final response",
+          "-- CPDLC PATCH: STANDBY stays available until it has been sent (status 3)",
+          "-- CPDLC PATCH: reach the ATC pages without an ATC key",
+          "-- CPDLC PATCH: the fix follows DIRECT TO",
+          "-- CPDLC PATCH: unknown or empty response attribute = no response required"
+        ]
+      }
+    ],
+    "signatures": [],
+    "resultFiles": [],
+    "originalFiles": [],
+    "recoveryInstruction": "Before switching to MTK, use the restore or uninstall procedure documented by this patch, preserving other patches. Then rescan. Instructions: https://github.com/wahltho/X-Plane-Zibo-LevelUp-737NG-CPDLC#readme."
+  },
+  "nativeState": {
+    "kind": "files",
+    "path": ".zibo-cpdlc-patch/state.json"
+  }
+}

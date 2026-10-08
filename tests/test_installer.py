@@ -255,7 +255,7 @@ class InstallerIntegrationTests(unittest.TestCase):
                 self.assertFalse((aircraft_root / ".zibo-cpdlc-patch").exists())
                 self.run_installer(aircraft_root, "check")
 
-    def test_v100_installed_file_upgrades_without_duplicate_hooks(self) -> None:
+    def test_v100_without_receipt_blocks_without_writes(self) -> None:
         fixture = json.loads(
             (REPOSITORY_ROOT / "tests/fixtures/B738.a_fms.lua.v1.0.0.json").read_text(encoding="utf-8")
         )
@@ -270,21 +270,11 @@ class InstallerIntegrationTests(unittest.TestCase):
                 self.assertEqual(12, v100.count(b'if cpdlc_patch_lsk("'))
                 fms.write_bytes(v100)
 
-                self.run_installer(aircraft_root, "check")
-                self.run_installer(aircraft_root, "install")
-                installed = fms.read_bytes()
-                self.assertEqual(12, installed.count(b'if cpdlc_patch_lsk("'))
-                # only the display overlay hook carries the plain marker comment
-                self.assertEqual(1, installed.count(b"-- CPDLC PATCH\r\n") + installed.count(b"-- CPDLC PATCH\n"))
-                self.assertEqual(1, installed.count(b"-- BEGIN CPDLC PATCH MODULE"))
-
-                fresh_root = Path(temporary) / (name + " fresh")
-                self.copy_baseline(upstream, fresh_root)
-                self.run_installer(fresh_root, "install")
-                self.assertEqual(sha256(fresh_root / TARGETS[0]), sha256(fms))
-
-                self.run_installer(aircraft_root, "uninstall")
-                self.assertEqual(original_hashes[TARGETS[0]], sha256(fms))
+                before = {p.relative_to(aircraft_root).as_posix(): p.read_bytes() for p in aircraft_root.rglob("*") if p.is_file()}
+                for action in ("check", "install", "uninstall"):
+                    result = self.run_installer(aircraft_root, action, expected=1)
+                    self.assertIn("no verified standalone owner", result.stderr)
+                self.assertEqual(before, {p.relative_to(aircraft_root).as_posix(): p.read_bytes() for p in aircraft_root.rglob("*") if p.is_file()})
 
     def test_v110_standalone_installation_updates_to_v120(self) -> None:
         manifest = json.loads(
@@ -310,12 +300,17 @@ class InstallerIntegrationTests(unittest.TestCase):
 
                 state_root = aircraft_root / ".zibo-cpdlc-patch"
                 state_root.mkdir()
+                backup_root = state_root / "backups/original"
+                backup = backup_root / TARGETS[0]
+                backup.parent.mkdir(parents=True)
+                shutil.copy2(upstream / TARGETS[0], backup)
                 (state_root / "state.json").write_text(
                     json.dumps(
                         {
                             "schemaVersion": 1,
                             "packageId": manifest["packageId"],
                             "packageVersion": "1.1.0",
+                            "backupRelativePath": backup_root.relative_to(aircraft_root).as_posix(),
                             "manifestSha256": "0" * 64,
                             "installedAtUtc": "2026-01-01T00:00:00+00:00",
                             "files": [

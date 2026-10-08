@@ -24,6 +24,8 @@ PACKAGE_FILES = (
     "package-manifest.json",
     "patchlib.py",
     "z_Install.py",
+    "standalone_guard.py",
+    "standalone-ownership.json",
 ) + MODULE_PAYLOADS
 
 
